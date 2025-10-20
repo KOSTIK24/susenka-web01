@@ -1,0 +1,12 @@
+body{background:#111;color:#fff;font-family:Arial;text-align:center;margin:0}
+body.light{background:#fff;color:#111}
+.topbar{display:flex;justify-content:space-between;align-items:center;background:#1e1e1e;padding:10px 20px}
+.logo{width:40px;border-radius:10px}
+.title{margin:0}
+.accent{color:#f9b233}
+.nav{display:flex;justify-content:center;flex-wrap:wrap;background:#2a2a2a;padding:10px}
+.nav a{color:#fff;text-decoration:none;margin:5px 10px;font-weight:bold}
+.nav a:hover{color:#f9b233}
+.hero{padding:40px}
+.discord{background:#5865F2;color:#fff;padding:12px 20px;border-radius:10px;text-decoration:none;font-weight:bold}
+footer{padding:20px;color:#aaa}
