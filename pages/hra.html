@@ -20,66 +20,21 @@
       </ul>
     </nav>
   </header>
+
   <main>
     <h1>🍪 Cookie Clicker</h1>
     <p>Sušenky: <span id="count">0</span></p>
+
     <img id="cookie" src="../images/susenka-logo.png" alt="Sušenka" class="logo" style="cursor:pointer;">
+
     <div class="controls">
-      <button onclick="saveGame()">Uložit</button>
-      <button onclick="resetGame()">Reset</button>
-      <button onclick="exportGame()">Export</button>
-      <button onclick="importGame()">Import</button>
+      <button onclick="saveGame()">💾 Uložit</button>
+      <button onclick="resetGame()">♻️ Reset</button>
+      <button onclick="exportGame()">⬇️ Export</button>
+      <button onclick="importGame()">⬆️ Import</button>
     </div>
   </main>
+
   <footer>© 2025 Sušenka Web</footer>
-  <script>
-    let count = parseInt(localStorage.getItem('count')) || 0;
-    const countDisplay = document.getElementById('count');
-    const cookie = document.getElementById('cookie');
-    countDisplay.textContent = count;
-
-    cookie.onclick = () => {
-      count++;
-      countDisplay.textContent = count;
-      localStorage.setItem('count', count);
-    };
-
-    function saveGame() {
-      localStorage.setItem('count', count);
-      alert('Hra uložena!');
-    }
-    function resetGame() {
-      if(confirm('Opravdu resetovat?')) {
-        count = 0;
-        localStorage.setItem('count', count);
-        countDisplay.textContent = count;
-      }
-    }
-    function exportGame() {
-      const data = JSON.stringify({ count });
-      const blob = new Blob([data], { type: 'application/json' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'susenka-save.json';
-      a.click();
-    }
-    function importGame() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      input.onchange = e => {
-        const file = e.target.files[0];
-        const reader = new FileReader();
-        reader.onload = event => {
-          const data = JSON.parse(event.target.result);
-          count = data.count || 0;
-          localStorage.setItem('count', count);
-          countDisplay.textContent = count;
-        };
-        reader.readAsText(file);
-      };
-      input.click();
-    }
-  </script>
 </body>
 </html>
