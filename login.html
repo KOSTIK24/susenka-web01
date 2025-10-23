@@ -2,7 +2,12 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Přihlášení • Sušenka Web</title>
 <link rel="stylesheet" href="style.css"/><script src="script.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded',initAuthPage);</script>
+<script>
+  window.addEventListener('load', () => {
+    if (typeof initAuthPage === "function") initAuthPage();
+    else alert("Chyba: script.js se nenačetl!");
+  });
+</script>
 </head><body>
 <header><div class="top">
   <a class="brand" href="#"><img src="images/susenka-logo.png" class="logo" alt="logo"/><h1 class="title">Sušenka <span class="accent">Web</span></h1></a>
