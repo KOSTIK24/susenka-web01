@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="cs"><head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Přihlášení • Sušenka Web</title>
+<link rel="stylesheet" href="style.css"/><script src="script.js" defer></script>
+<script>document.addEventListener('DOMContentLoaded',initAuthPage);</script>
+</head><body>
+<header><div class="top">
+  <a class="brand" href="#"><img src="images/susenka-logo.png" class="logo" alt="logo"/><h1 class="title">Sušenka <span class="accent">Web</span></h1></a>
+  <div class="right"></div>
+</div></header>
+<main class="container">
+  <div class="card">
+    <h2 id="authTitle">Přihlášení</h2>
+    <form id="authForm">
+      <label for="username">Uživatelské jméno</label>
+      <input id="username" type="text" placeholder="např. susenka3" required/>
+      <label for="password">Heslo</label>
+      <input id="password" type="password" placeholder="••••••••" required/>
+      <div class="form-actions">
+        <button class="btn" style="background:linear-gradient(135deg,#6c5ce7,#a770ef);color:#fff;">Pokračovat</button>
+        <a href="#" id="modeToggle" class="small">Přepnout na registraci</a>
+      </div>
+    </form>
+    <p class="small" id="altText">Nemáš účet? <a href="#" id="switch">Vytvořit</a></p>
+  </div>
+</main>
+<footer class="footer">© 2025 Sušenka Web</footer>
+</body></html>

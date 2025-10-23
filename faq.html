@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ • Sušenka Web</title>
+  <link rel="stylesheet" href="style.css"><script src="script.js" defer></script>
+  <script>document.addEventListener('DOMContentLoaded',()=>{requireAuth(); fillUser();});</script>
+</head>
+<body>
+  <header>
+    <div class="top">
+      <div class="brand"><img src="images/susenka-logo.png" class="logo" alt="logo"><h1 class="title">Sušenka <span class="accent">Web</span></h1></div>
+      <div class="right"><span class="small muted" id="whoami"></span><button class="btn outline" onclick="toggleTheme()">🌙</button><button class="btn warn" onclick="logout()">Odhlásit</button></div>
+    </div>
+    <nav class="nav"><a href="index.html">Domů</a><a href="team.html">Tým</a><a href="hra.html">Hra</a><a href="kontakt.html">Kontakt</a><a href="faq.html">FAQ</a></nav>
+  </header>
+  <main class="container">
+    <h2>Časté otázky</h2>
+    <ul class="muted"><li>Ukládání hry: localStorage (na zařízení).</li><li>Login: localStorage (bez serveru).</li><li>Hostování: GitHub Pages / Netlify / Vercel bez přihlášení.</li></ul>
+  </main>
+  <footer class="footer">© 2025 Sušenka Community</footer>
+</body>
+</html>
