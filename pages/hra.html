@@ -1,47 +1,53 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hra • Sušenka Web</title>
-  <link rel="stylesheet" href="../style.css" />
-  <script defer src="../script.js"></script>
+  <link rel="stylesheet" href="../style.css">
+  <script src="../script.js" defer></script>
 </head>
 <body>
-<header class="topbar">
-  <div class="brand">
-    <img src="../images/susenka-logo.png" alt="logo" class="brand-logo"/>
-    <span class="brand-name">Sušenka <b>Web</b></span>
-  </div>
-  <nav class="nav">
-    <a href="../index.html">Domů</a>
-    <a href="../pages/hra.html">Hra</a>
-    <a href="../pages/team.html">Tým</a>
-    <a href="../pages/kontakt.html">Kontakt</a>
-    <a href="../pages/faq.html">FAQ</a>
-    <a href="../pages/pravidla.html">Pravidla</a>
-  </nav>
-</header>
-<main class="container">
+  <header class="topbar">
+    <div class="brand">
+      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo"/>
+      <span class="brand-name">Sušenka <b>Web</b></span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Domů</a>
+      <a href="hra.html">Hra</a>
+      <a href="team.html">Tým</a>
+      <a href="kontakt.html">Kontakt</a>
+      <a href="faq.html">FAQ</a>
+      <a href="pravidla.html">Pravidla</a>
+    </nav>
+  </header>
 
-<section class="card game-card animate-pop">
-  <h1>🍪 Cookie Clicker</h1>
-  <p class="counter">Sušenky: <span id="count">0</span></p>
+  <main class="container">
+    <section class="card game-card animate-pop">
+      <h1>🍪 Cookie Clicker</h1>
+      <p class="counter">Sušenky: <span id="count">0</span></p>
 
-  <div class="cookie-wrap">
-    <img id="cookie" src="../images/susenka-logo.png" alt="Sušenka" class="cookie"/>
-  </div>
+      <div class="cookie-wrap">
+        <img id="cookie" src="../images/susenka-logo.png" alt="Sušenka" class="cookie"/>
+      </div>
 
-  <div class="controls">
-    <button class="btn" onclick="saveGame()">💾 Uložit</button>
-    <button class="btn" onclick="resetGame()">♻️ Reset</button>
-    <button class="btn" onclick="exportGame()">⬇️ Export</button>
-    <button class="btn" onclick="importGame()">⬆️ Import</button>
-  </div>
-  <small class="hint">Hra se ukládá automaticky. Export/Import funguje offline.</small>
-</section>
+      <div class="controls">
+        <button class="btn" onclick="saveGame()">💾 Uložit</button>
+        <button class="btn" onclick="resetGame()">♻️ Reset</button>
+        <button class="btn" onclick="exportGame()">⬇️ Export</button>
+        <button class="btn" onclick="importGame()">⬆️ Import</button>
+      </div>
 
-</main>
-<footer class="footer">© 2025 Sušenka Web</footer>
+      <div class="upgrade-section">
+        <p id="upgradeInfo">Cena upgradu: 50 🍪</p>
+        <button id="upgrade" class="btn primary">💎 Koupit upgrade</button>
+      </div>
+
+      <small class="hint">Hra se ukládá automaticky. Export/Import funguje offline.</small>
+    </section>
+  </main>
+
+  <footer class="footer">© 2025 Sušenka Web</footer>
 </body>
 </html>
