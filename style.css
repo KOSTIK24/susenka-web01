@@ -112,10 +112,25 @@ body{
   background: radial-gradient(120% 120% at 30% 30%, #d7c7ff 0%, #a996ff 40%, #a770ef 100%);
 }
 
-/* ⚙️ FAQ tlačítko posunuté dolů */
-.grid article:nth-child(4) .btn {
-  margin-top: 10px;
+/* ✅ FAQ karta – zarovnání a jednotná výška */
+.grid article:nth-child(4) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 100px;       /* zarovnání výšky s ostatními kartami */
+  padding-bottom: 20px;    /* lehký vnitřní odstup dolů */
 }
+
+.grid article:nth-child(4) p {
+  flex-grow: 1;
+}
+
+.grid article:nth-child(4) .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+
 
 /* 🧍 Tým */
 .team{
@@ -146,8 +161,17 @@ body{
 .cookie:active{transform: scale(0.94) rotate(-2deg);}
 .controls{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
 .hint{color: var(--muted);}
-.upgrade-section{margin-top:20px;}
-.upgrade-section p{color: var(--muted); margin-bottom:10px;}
+
+/* 🍪 Sekce upgradu */
+.upgrade-section {
+  margin-top: 20px;
+  text-align: center;
+}
+.upgrade-section p {
+  color: var(--muted);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
 
 /* 🔄 Animace */
 @keyframes pop { from{transform:scale(.96); opacity:0} to{transform:scale(1); opacity:1} }
