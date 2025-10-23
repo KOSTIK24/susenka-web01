@@ -2,14 +2,16 @@
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Sušenka Web</title>
 <link rel="stylesheet" href="style.css"/><script src="script.js" defer></script>
-<script>document.addEventListener('DOMContentLoaded',()=>{requireAuth(); fillUser();});</script>
 </head><body>
 <header><div class="top">
   <a class="brand" href="index.html"><img src="images/susenka-logo.png" class="logo" alt="logo"/><h1 class="title">Sušenka <span class="accent">Web</span></h1></a>
-  <div class="right"><span class="small muted" id="whoami"></span><button class="btn warn" onclick="logout()">Odhlásit</button></div>
-</div>
-<nav class="nav"><a href="index.html">Domů</a><a href="pages/hra.html">Hra</a><a href="pages/team.html">Tým</a><a href="pages/kontakt.html">Kontakt</a><a href="pages/faq.html">FAQ</a><a href="pages/pravidla.html">Pravidla</a></nav>
-</header>
-<main class="container"><section class="hero"><h2>Vítej na Sušenka Web! 🍪</h2><p>Spusť naši jednoduchou Cookie Clicker hru a sbírej sušenky. Tvůj postup se ukládá.</p><a class="button" href="pages/hra.html">Spustit hru 🍪</a></section></main>
-<footer class="footer">© 2025 Sušenka Web</footer>
-</body></html>
+  <nav class="nav"><a href="index.html">Domů</a><a href="pages/hra.html">Hra</a><a href="pages/team.html">Tým</a><a href="pages/kontakt.html">Kontakt</a><a href="pages/faq.html">FAQ</a></nav>
+</div></header>
+<main class="container"><section class="hero"><h2>Vítej na Sušenka Web! 🍪</h2><p class="small">Začni sbírat sušenky v naší jednoduché hře. Web jede offline i online.</p><a class="button" href="pages/hra.html">Spustit hru 🍪</a></section>
+<div class="grid">
+  <div class="card"><h3>Hra</h3><p class="small">Klikni a sbírej sušenky. Ukládání je v prohlížeči.</p><a class="button" href="pages/hra.html">Otevřít</a></div>
+  <div class="card"><h3>Tým</h3><p class="small">Seznam členů Sušenka týmu.</p><a class="button" href="pages/team.html">Otevřít</a></div>
+  <div class="card"><h3>Kontakt</h3><p class="small">Přidej se k nám na Discordu.</p><a class="button" href="pages/kontakt.html">Otevřít</a></div>
+  <div class="card"><h3>FAQ</h3><p class="small">Časté dotazy a info.</p><a class="button" href="pages/faq.html">Otevřít</a></div>
+</div></main>
+<footer class="footer">© 2025 Sušenka Web</footer></body></html>
