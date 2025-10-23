@@ -1,10 +1,65 @@
-function clickerInit(){const key='susenka-clicker-guest';const el=id=>document.getElementById(id);let state={cookies:0};
-function load(){try{const raw=localStorage.getItem(key);if(raw){state={...state,...JSON.parse(raw)};}}catch(e){}render();}
-function save(){try{localStorage.setItem(key,JSON.stringify(state));}catch(e){}}
-function render(){if(el('count'))el('count').textContent=Math.floor(state.cookies);}
-const cookieBtn=document.getElementById('cookieBtn');if(cookieBtn){cookieBtn.addEventListener('click',()=>{state.cookies+=1;render();});}
-const saveBtn=document.getElementById('saveBtn');if(saveBtn){saveBtn.addEventListener('click',save);}
-const resetBtn=document.getElementById('resetBtn');if(resetBtn){resetBtn.addEventListener('click',()=>{if(confirm('Resetovat hru?')){state={cookies:0};save();render();}});}
-const exportBtn=document.getElementById('exportBtn');if(exportBtn){exportBtn.addEventListener('click',()=>{const data=btoa(unescape(encodeURIComponent(JSON.stringify(state))));prompt('Skopíruj si svůj save:',data);});}
-const importBtn=document.getElementById('importBtn');if(importBtn){importBtn.addEventListener('click',()=>{const data=prompt('Vlož svůj save:');if(!data)return;try{const obj=JSON.parse(decodeURIComponent(escape(atob(data))));state={...state,...obj};save();render();alert('Načteno!');}catch(e){alert('Neplatný save.');}});}
-load();}
+
+// Sušenka Web — modern + animace + opravená hra
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("Sušenka Web ready ✨");
+
+  const cookie = document.getElementById("cookie");
+  const countDisplay = document.getElementById("count");
+  if (cookie && countDisplay) {
+    let count = parseInt(localStorage.getItem("count")) || 0;
+    countDisplay.textContent = count;
+
+    // animovaný klik
+    cookie.addEventListener("click", () => {
+      count++;
+      countDisplay.textContent = count;
+      localStorage.setItem("count", count);
+
+      cookie.style.transform = "scale(0.92) rotate(-3deg)";
+      setTimeout(() => { cookie.style.transform = ""; }, 90);
+    });
+
+    window.saveGame = function () {
+      localStorage.setItem("count", count);
+      alert("💾 Hra uložena!");
+    };
+    window.resetGame = function () {
+      if (confirm("Opravdu resetovat hru?")) {
+        count = 0;
+        localStorage.setItem("count", count);
+        countDisplay.textContent = count;
+      }
+    };
+    window.exportGame = function () {
+      const data = JSON.stringify({ count });
+      const blob = new Blob([data], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'susenka-save.json';
+      a.click();
+    };
+    window.importGame = function () {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json,application/json';
+      input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            count = parseInt(data.count) || 0;
+            localStorage.setItem("count", count);
+            countDisplay.textContent = count;
+            alert("📥 Uložení načteno.");
+          } catch (err) {
+            alert("❌ Neplatný soubor uložení.");
+          }
+        };
+        reader.readAsText(file);
+      };
+      input.click();
+    };
+  }
+});

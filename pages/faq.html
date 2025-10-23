@@ -1,10 +1,46 @@
-<!DOCTYPE html><html lang="cs"><head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FAQ • Sušenka Web</title>
-<link rel="stylesheet" href="../style.css"/></head><body>
-<header><div class="top">
-  <a class="brand" href="../index.html"><img src="../images/susenka-logo.png" class="logo" alt="logo"/><h1 class="title">Sušenka <span class="accent">Web</span></h1></a>
-  <nav class="nav"><a href="../index.html">Domů</a><a href="hra.html">Hra</a><a href="team.html">Tým</a><a href="kontakt.html">Kontakt</a><a href="faq.html">FAQ</a></nav>
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ • Sušenka Web</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script defer src="../script.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <img src="../images/susenka-logo.png" alt="logo" class="brand-logo"/>
+    <span class="brand-name">Sušenka <b>Web</b></span>
+  </div>
+  <nav class="nav">
+    <a href="../index.html">Domů</a>
+    <a href="../pages/hra.html">Hra</a>
+    <a href="../pages/team.html">Tým</a>
+    <a href="../pages/kontakt.html">Kontakt</a>
+    <a href="../pages/faq.html">FAQ</a>
+    <a href="../pages/pravidla.html">Pravidla</a>
+  </nav>
 </header>
-<main class="container"><h2>Časté otázky</h2><ul class="small"><li>Ukládání hry: localStorage.</li><li>Nasazení: GitHub Pages / Netlify / Vercel.</li><li>Web běží offline i online.</li></ul></main>
-<footer class="footer">© 2025 Sušenka Web</footer></body></html>
+<main class="container">
+
+<section class="card animate-pop">
+  <h1>FAQ</h1>
+  <details class="faq-item" open>
+    <summary>Jde web offline?</summary>
+    <p>Ano, data hry se ukládají do <code>localStorage</code>, takže progres zůstane i bez internetu.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Jak funguje export/import?</summary>
+    <p>Export vytvoří soubor <code>susenka-save.json</code>. Import načte soubor a obnoví počet sušenek.</p>
+  </details>
+  <details class="faq-item">
+    <summary>Kde běží web?</summary>
+    <p>Na GitHub Pages i lokálně po otevření <code>index.html</code>.</p>
+  </details>
+</section>
+
+</main>
+<footer class="footer">© 2025 Sušenka Web</footer>
+</body>
+</html>
