@@ -10,7 +10,7 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar"/>
+      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
       <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
     </div>
     <nav class="nav">
@@ -20,32 +20,37 @@
       <a href="kontakt.html">Kontakt</a>
       <a href="faq.html">FAQ</a>
       <a href="pravidla.html">Pravidla</a>
-      <a href="auth.html">Přihlášení</a>
     </nav>
   </header>
 
   <main class="container">
     <section class="card game-card animate-pop">
-      <h1>🍪 Cookie Clicker</h1>
+      <h2>🍪 Sušenka Hra – Nástroje</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
 
       <div class="cookie-wrap">
-        <img id="cookie" src="../images/susenka-logo.png" alt="Sušenka" class="cookie"/>
+        <img src="../images/susenka-logo.png" alt="cookie" id="cookie" class="cookie">
       </div>
 
       <div class="controls">
-        <button class="btn" onclick="saveGame()">💾 Uložit</button>
-        <button class="btn" onclick="resetGame()">♻️ Reset</button>
-        <button class="btn" onclick="exportGame()">⬇️ Export</button>
-        <button class="btn" onclick="importGame()">⬆️ Import</button>
+        <button class="btn" id="save-btn">💾 Uložit</button>
+        <button class="btn" id="reset-btn">🔄 Reset</button>
+        <button class="btn" id="export-btn">📋 Export</button>
+        <button class="btn" id="import-btn">📥 Import</button>
       </div>
 
       <div class="upgrade-section">
-        <p id="upgradeInfo">Cena upgradu: 50 🍪</p>
-        <button id="upgrade" class="btn primary">💎 Koupit upgrade</button>
+        <h3>🛠️ Nástroje</h3>
+        <p id="hint">Kupuj nástroje pro lepší sbírání sušenek!</p>
+        <div id="shop" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
+          <!-- obchod generuje skript -->
+        </div>
       </div>
 
-      <small class="hint">Hra se ukládá automaticky. Export/Import funguje offline.</small>
+      <div class="upgrade-section">
+        <h3>🎒 Tvůj inventář</h3>
+        <ul id="inventory" style="list-style:none;padding:0;color:var(--muted);"></ul>
+      </div>
     </section>
   </main>
 
