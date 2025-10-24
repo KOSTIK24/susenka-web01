@@ -1,6 +1,7 @@
-/ ========== 💬 SUŠENKA WEB CHAT – Firebase Realtime Chat ========== /
+/* ========== 💬 SUŠENKA WEB CHAT – Firebase Realtime Chat ========== */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
