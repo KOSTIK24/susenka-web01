@@ -1,4 +1,4 @@
-/* ========== 🍪 SUŠENKA WEB – LOGIN / REGISTRACE / ADMIN PANEL ========== */
+/ ========== 🍪 SUŠENKA WEB – LOGIN / REGISTRACE / ADMIN PANEL ========== /
 
 console.log("✅ Skript načten");
 
