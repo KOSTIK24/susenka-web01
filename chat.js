@@ -5,7 +5,7 @@ import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/fi
 const firebaseConfig = {
   apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
   authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.firebaseio.com",
+ databaseURL: "https://susenka-web-chat.firebaseio.com",
   projectId: "susenka-web-chat",
   storageBucket: "susenka-web-chat.appspot.com",
   messagingSenderId: "625704029177",
