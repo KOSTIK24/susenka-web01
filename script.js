@@ -1,6 +1,6 @@
 /* ========== 🍪 SUŠENKA WEB – LOGIN / REGISTRACE / ADMIN PANEL ========== */
 
-console.log("✅ Skript načten";
+console.log("✅ Skript načten");
 document.addEventListener("DOMContentLoaded", () => {
   // === Pomocné funkce ===
   const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
@@ -222,4 +222,5 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   saveBtn.addEventListener("click", () => {
-    saveGame()
+  saveGame()
+
