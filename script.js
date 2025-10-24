@@ -222,5 +222,123 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   saveBtn.addEventListener("click", () => {
-  saveGame()
+     saveGame();
+    alert("💾 Uloženo!");
+  });
 
+  resetBtn.addEventListener("click", () => {
+    if (confirm("Opravdu chceš resetovat hru?")) {
+      count = 0;
+      inventory = [];
+      saveGame();
+      updateDisplay();
+      renderInventory();
+      alert("🔄 Reset hotov!");
+    }
+  });
+
+  exportBtn.addEventListener("click", () => {
+    const data = JSON.stringify({ cookies: count, inventory });
+    navigator.clipboard.writeText(data);
+    alert("📋 Exportováno do schránky!");
+  });
+
+  importBtn.addEventListener("click", async () => {
+    const data = prompt("Vlož exportovaný JSON:");
+    if (!data) return;
+    try {
+      const parsed = JSON.parse(data);
+      count = parsed.cookies || 0;
+      inventory = parsed.inventory || [];
+      saveGame();
+      updateDisplay();
+      renderInventory();
+      alert("✅ Importováno!");
+    } catch {
+      alert("❌ Neplatný formát!");
+    }
+  });
+
+  // 🏪 Obchod
+  function renderShop() {
+    shop.innerHTML = "";
+    tools.forEach((t) => {
+      const owned = inventory.includes(t.id);
+      const btnText = owned ? "✅ Vlastníš" : `🛒 Koupit (${t.cost})`;
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.textContent = btnText;
+      btn.disabled = owned;
+      btn.onclick = () => buyTool(t);
+      shop.appendChild(btn);
+    });
+  }
+
+  // 🎒 Inventář
+  function renderInventory() {
+    inventoryList.innerHTML = "";
+    if (!inventory.length) {
+      inventoryList.innerHTML = "<li>Nemáš žádné nástroje.</li>";
+      return;
+    }
+
+    inventory.forEach((id) => {
+      const t = tools.find((x) => x.id === id);
+      const li = document.createElement("li");
+      li.innerHTML = `${t.name} • +${t.bonus} 🍪 / klik <button class="btn" style="margin-left:8px;" onclick="sellTool('${id}')">💰 Prodat</button>`;
+      inventoryList.appendChild(li);
+    });
+  }
+
+  // 💸 Koupit nástroj
+  function buyTool(tool) {
+    if (inventory.includes(tool.id)) return;
+    if (count < tool.cost) {
+      alert("❌ Nemáš dost sušenek!");
+      return;
+    }
+    count -= tool.cost;
+    inventory.push(tool.id);
+    saveGame();
+    updateDisplay();
+    renderInventory();
+    renderShop();
+    alert(`✅ Koupil jsi ${tool.name}!`);
+  }
+
+  // 💰 Prodat nástroj
+  window.sellTool = function (id) {
+    const tool = tools.find((x) => x.id === id);
+    if (!tool) return;
+    const confirmSell = confirm(`Chceš prodat ${tool.name} za ${Math.floor(tool.cost / 2)} sušenek?`);
+    if (!confirmSell) return;
+    inventory = inventory.filter((i) => i !== id);
+    count += Math.floor(tool.cost / 2);
+    saveGame();
+    updateDisplay();
+    renderInventory();
+    renderShop();
+    alert("💰 Prodáno!");
+  };
+
+  // 💾 Uložení
+  function saveGame() {
+    if (!username || !users[username]) return;
+    users[username].cookies = count;
+    users[username].inventory = inventory;
+    localStorage.setItem("users", JSON.stringify(users));
+  }
+
+  function getBonus() {
+    let total = 0;
+    inventory.forEach((id) => {
+      const tool = tools.find((x) => x.id === id);
+      if (tool) total += tool.bonus;
+    });
+    return total;
+  }
+
+  function updateDisplay() {
+    countDisplay.textContent = count;
+  }
+});
