@@ -120,9 +120,7 @@ body{
   min-height: 230px;
   padding-bottom: 20px;
 }
-.grid article:nth-child(4) p {
-  flex-grow: 1;
-}
+.grid article:nth-child(4) p { flex-grow: 1; }
 .grid article:nth-child(4) .btn {
   margin-top: auto;
   align-self: flex-start;
@@ -206,7 +204,7 @@ body{
   margin-left:8px;
 }
 
-/* malé úpravy pro auth stránku */
+/* 👤 Profilovky a přihlášení */
 .avatar-choice {
   width:56px;
   height:56px;
