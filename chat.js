@@ -34,7 +34,7 @@ function sendMessage() {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const username = localStorage.getItem("currentUser") || "Anonym";
   const user = users[username] || {};
-  const avatar = user.avatar || "../images/susenka-logo.png";
+ const avatar = user.avatar || "/susenka-web01/images/susenka-logo.png";
   const time = new Date().toLocaleTimeString();
 
   push(ref(db, "messages"), {
