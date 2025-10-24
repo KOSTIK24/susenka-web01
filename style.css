@@ -262,3 +262,11 @@ body{
   background: rgba(255,255,255,0.1);
   color: white;
 }
+/* 🧱 Fix navigace – aby šla klikat i na mobilu */
+.topbar {
+  z-index: 9999;
+}
+.nav a {
+  position: relative;
+  z-index: 2;
+}
