@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat • Sušenka Web</title>
+  <link rel="stylesheet" href="../style.css" />
+  <script type="module" src="../script.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar" />
+      <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Domů</a>
+      <a href="hra.html">Hra</a>
+      <a href="chat.html">Chat</a>
+      <a href="team.html">Tým</a>
+      <a href="faq.html">FAQ</a>
+      <a href="pravidla.html">Pravidla</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="card animate-pop" id="chat-section">
+      <h2>💬 Sušenka Chat</h2>
+      <div id="chat-box" class="chat-box"></div>
+
+      <div class="chat-input">
+        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
+        <button id="send-btn" class="btn">📤 Odeslat</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">© 2025 Sušenka Web</footer>
+</body>
+</html>
