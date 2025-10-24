@@ -180,3 +180,45 @@ window.listUsers = function () {
     list.appendChild(li);
   }
 };
+/* ========== 🍪 SUŠENKA HRA S NÁSTROJI ========== */
+document.addEventListener("DOMContentLoaded", () => {
+  const cookie = document.getElementById("cookie");
+  const countDisplay = document.getElementById("count");
+  if (!cookie || !countDisplay) return;
+
+  const saveBtn = document.getElementById("save-btn");
+  const resetBtn = document.getElementById("reset-btn");
+  const exportBtn = document.getElementById("export-btn");
+  const importBtn = document.getElementById("import-btn");
+  const shop = document.getElementById("shop");
+  const inventoryList = document.getElementById("inventory");
+
+  // 🧾 Ceník nástrojů
+  const tools = [
+    { name: "Dřevěná lopatka", id: "wood", cost: 50, bonus: 1 },
+    { name: "Kovová lopata", id: "metal", cost: 200, bonus: 3 },
+    { name: "Zlatá lopata", id: "gold", cost: 500, bonus: 6 },
+    { name: "Sušenková mašina", id: "machine", cost: 1500, bonus: 15 }
+  ];
+
+  const username = localStorage.getItem("currentUser");
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const user = users[username] || {};
+  let count = parseInt(user.cookies || 0);
+  let inventory = user.inventory || [];
+
+  // Zobrazení
+  updateDisplay();
+  renderShop();
+  renderInventory();
+
+  // 🍪 Klikání
+  cookie.addEventListener("click", () => {
+    const bonus = getBonus();
+    count += 1 + bonus;
+    updateDisplay();
+    saveGame();
+  });
+
+  saveBtn.addEventListener("click", () => {
+    saveGame()
