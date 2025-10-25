@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hra • Sušenka Web</title>
   <link rel="stylesheet" href="../style.css">
-  <script src="../script.js" defer></script>
+  <script type="module" src="../script.js" defer></script>
+  <script type="module" src="../chat.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -17,14 +18,13 @@
       <a href="../index.html">Domů</a>
       <a href="hra.html">Hra</a>
       <a href="team.html">Tým</a>
-      <a href="kontakt.html">Kontakt</a>
       <a href="faq.html">FAQ</a>
       <a href="pravidla.html">Pravidla</a>
     </nav>
   </header>
 
-  <main class="container">
-    <section class="card game-card animate-pop">
+  <main class="container" style="display:flex;gap:20px;flex-wrap:wrap;">
+    <section class="card game-card animate-pop" style="flex:2;">
       <h2>🍪 Sušenka Hra – Nástroje</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
 
@@ -41,10 +41,7 @@
 
       <div class="upgrade-section">
         <h3>🛠️ Nástroje</h3>
-        <p id="hint">Kupuj nástroje pro lepší sbírání sušenek!</p>
-        <div id="shop" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;">
-          <!-- obchod generuje skript -->
-        </div>
+        <div id="shop" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>
       </div>
 
       <div class="upgrade-section">
@@ -52,6 +49,17 @@
         <ul id="inventory" style="list-style:none;padding:0;color:var(--muted);"></ul>
       </div>
     </section>
+
+    <aside class="card animate-pop" style="flex:1;min-width:280px;">
+      <h2>💬 Chat</h2>
+      <div id="chat-box" class="chat-box"></div>
+      <div class="chat-input">
+        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
+        <button id="send-btn" class="btn">📤</button>
+      </div>
+      <h3 style="margin-top:16px;">🟢 Online</h3>
+      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
+    </aside>
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
