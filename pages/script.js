@@ -70,26 +70,3 @@ window.listAdmins = function () {
   if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
 };
 
-window.listUsers = function () {
-  const list = document.getElementById("user-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-
-  list.innerHTML = "";
-  if (!Object.keys(users).length) {
-    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
-    return;
-  }
-
-  for (const [name, u] of Object.entries(users)) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
-        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
-        <div>
-          <strong>${name}</strong><br>
-          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
-        </div>
-      </div>`;
-    list.appendChild(li);
-  }
-};
