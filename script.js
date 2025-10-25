@@ -35,35 +35,64 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // === Registrace ===
-  const btnRegister = document.getElementById("btn-register");
-  if (btnRegister) {
-    btnRegister.addEventListener("click", () => {
-      const name = (document.getElementById("reg-name").value || "").trim();
-      const email = (document.getElementById("reg-email").value || "").trim().toLowerCase();
-      const pass = (document.getElementById("reg-pass").value || "").trim();
-      const avatar = (document.getElementById("reg-avatar").value || "").trim();
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-      if (!name || !email || !pass) return alert("Vyplň jméno, e-mail a heslo!");
+// Firebase konfigurace
+const firebaseConfig = {
+  apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
+  authDomain: "susenka-web-chat.firebaseapp.com",
+  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "susenka-web-chat",
+  storageBucket: "susenka-web-chat.appspot.com",
+  messagingSenderId: "625704029177",
+  appId: "1:625704029177:web:d8510c07f534df48134b28"
+};
 
-      const users = loadUsers();
-      if (users[name]) return alert("Uživatel už existuje!");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-      const isLeader = email === "susenky17@gmail.com";
-      users[name] = {
-        pass: hashPass(pass),
-        email,
-        avatar: avatar || "images/susenka-logo.png",
-        role: isLeader ? "vedouci" : "clen",
-        cookies: 0,
-        inventory: []
-      };
+const btnRegister = document.getElementById("btn-register");
+if (btnRegister) {
+  btnRegister.addEventListener("click", async () => {
+    const name = (document.getElementById("reg-name").value || "").trim();
+    const email = (document.getElementById("reg-email").value || "").trim().toLowerCase();
+    const pass = (document.getElementById("reg-pass").value || "").trim();
+    const avatar = (document.getElementById("reg-avatar").value || "").trim();
 
-      saveUsers(users);
-      setCurrentUser(name);
-      alert(isLeader ? "💎 Vítej, Vedoucí Sušenka Web!" : "Účet vytvořen ✅");
-      location.href = "../index.html";
+    if (!name || !email || !pass) return alert("Vyplň jméno, e-mail a heslo!");
+
+    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    if (users[name]) return alert("Uživatel už existuje!");
+
+    const isLeader = email === "susenky17@gmail.com";
+    const newUser = {
+      pass: btoa(unescape(encodeURIComponent(pass))),
+      email,
+      avatar: avatar || "images/susenka-logo.png",
+      role: isLeader ? "vedouci" : "clen",
+      cookies: 0,
+      inventory: []
+    };
+
+    users[name] = newUser;
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("currentUser", name);
+
+    // 🔥 Uložení do Firebase
+    await set(ref(db, "users/" + name), {
+      username: name,
+      email,
+      avatar: newUser.avatar,
+      role: newUser.role,
+      cookies: 0
     });
-  }
+
+    alert(isLeader ? "💎 Vítej, Vedoucí Sušenka Web!" : "Účet vytvořen ✅");
+    location.href = "../index.html";
+  });
+}
+
 
   // === Přihlášení ===
   const btnLogin = document.getElementById("btn-login");
