@@ -10,8 +10,9 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef123456"
 };
 
-const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-const db = getDatabase(app);
+// Firebase inicializace
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
 function updateLeaderboardFirebase() {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
