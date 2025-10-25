@@ -313,3 +313,20 @@ window.clearUsers = function () {
     location.reload();
   }
 };
+// 🏆 LEADERBOARD
+document.addEventListener("DOMContentLoaded", () => {
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const leaderboard = document.getElementById("leaderboard");
+  if (!leaderboard) return;
+
+  const sorted = Object.entries(users)
+    .sort((a, b) => (b[1].cookies || 0) - (a[1].cookies || 0))
+    .slice(0, 10);
+
+  leaderboard.innerHTML = "";
+  sorted.forEach(([name, u], i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `#${i + 1} <b>${name}</b> – ${u.cookies || 0} 🍪`;
+    leaderboard.appendChild(li);
+  });
+});
