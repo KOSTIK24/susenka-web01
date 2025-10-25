@@ -1,116 +1,86 @@
-// ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA, ADMIN PANEL) ==========
+/ ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA, ADMIN, LEADERBOARD) ========== /
+
 console.log("✅ Sušenka Web – hlavní skript načten");
 
-// Firebase moduly
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-// 🔥 Firebase konfigurace
-const firebaseConfig = {
-  apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
-  authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "susenka-web-chat",
-  storageBucket: "susenka-web-chat.appspot.com",
-  messagingSenderId: "625704029177",
-  appId: "1:625704029177:web:d8510c07f534df48134b28"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// Pomocné funkce
-const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
-const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
-const setCurrentUser = (name) => localStorage.setItem("currentUser", name);
-const getCurrentUser = () => localStorage.getItem("currentUser");
-const hashPass = (str) => btoa(unescape(encodeURIComponent(str)));
-
-// === Zobrazení přihlášeného uživatele ===
 document.addEventListener("DOMContentLoaded", () => {
+  const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
+  const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
+  const setCurrentUser = (name) => localStorage.setItem("currentUser", name);
+  const getCurrentUser = () => localStorage.getItem("currentUser");
+  const hashPass = (str) => btoa(unescape(encodeURIComponent(str)));
+
   const topbarAvatar = document.getElementById("topbar-avatar");
   const topbarUsername = document.getElementById("topbar-username");
 
-  const username = getCurrentUser();
-  if (!username) return;
+  renderTopbarUser();
+  function renderTopbarUser() {
+    const username = getCurrentUser();
+    if (!username) return;
+    const users = loadUsers();
+    const user = users[username];
+    if (!user) return;
 
-  const users = loadUsers();
-  const user = users[username];
-  if (!user) return;
-
-  if (topbarAvatar) topbarAvatar.src = user.avatar || "images/susenka-logo.png";
-  if (topbarUsername) {
-    if (user.email === "susenky17@gmail.com") {
-      topbarUsername.innerHTML = `💎 Vedoucí: <b>${username}</b>`;
-    } else if (user.role === "admin") {
-      topbarUsername.innerHTML = `👑 Admin: <b>${username}</b>`;
-    } else {
-      topbarUsername.textContent = username;
+    if (topbarAvatar) topbarAvatar.src = user.avatar || "images/susenka-logo.png";
+    if (topbarUsername) {
+      if (user.email === "susenky17@gmail.com") {
+        topbarUsername.innerHTML = `💎 Vedoucí: <b>${username}</b>`;
+      } else if (user.role === "admin") {
+        topbarUsername.innerHTML = `👑 Admin: <b>${username}</b>`;
+      } else {
+        topbarUsername.textContent = username;
+      }
     }
   }
-});
 
-// === Registrace ===
-const btnRegister = document.getElementById("btn-register");
-if (btnRegister) {
-  btnRegister.addEventListener("click", async () => {
-    const name = (document.getElementById("reg-name").value || "").trim();
-    const email = (document.getElementById("reg-email").value || "").trim().toLowerCase();
-    const pass = (document.getElementById("reg-pass").value || "").trim();
-    const avatar = (document.getElementById("reg-avatar").value || "").trim();
+  // === REGISTRACE ===
+  const btnRegister = document.getElementById("btn-register");
+  if (btnRegister) {
+    btnRegister.addEventListener("click", () => {
+      const name = document.getElementById("reg-name").value.trim();
+      const email = document.getElementById("reg-email").value.trim().toLowerCase();
+      const pass = document.getElementById("reg-pass").value.trim();
+      const avatar = document.getElementById("reg-avatar").value.trim();
 
-    if (!name || !email || !pass) return alert("Vyplň jméno, e-mail a heslo!");
+      if (!name || !email || !pass) return alert("Vyplň vše!");
 
-    const users = loadUsers();
-    if (users[name]) return alert("Uživatel už existuje!");
+      const users = loadUsers();
+      if (users[name]) return alert("Uživatel už existuje!");
 
-    const isLeader = email === "susenky17@gmail.com";
-    const newUser = {
-      pass: hashPass(pass),
-      email,
-      avatar: avatar || "images/susenka-logo.png",
-      role: isLeader ? "vedouci" : "clen",
-      cookies: 0,
-      inventory: []
-    };
+      const isLeader = email === "susenky17@gmail.com";
+      users[name] = {
+        pass: hashPass(pass),
+        email,
+        avatar: avatar || "images/susenka-logo.png",
+        role: isLeader ? "vedouci" : "clen",
+        cookies: 0,
+        inventory: []
+      };
 
-    users[name] = newUser;
-    saveUsers(users);
-    setCurrentUser(name);
-
-    // Uložení do Firebase
-    await set(ref(db, "users/" + name), {
-      username: name,
-      email,
-      avatar: newUser.avatar,
-      role: newUser.role,
-      cookies: 0
+      saveUsers(users);
+      setCurrentUser(name);
+      alert(isLeader ? "💎 Vítej, Vedoucí!" : "✅ Registrace hotová!");
+      location.href = "../index.html";
     });
+  }
 
-    alert(isLeader ? "💎 Vítej, Vedoucí Sušenka Web!" : "Účet vytvořen ✅");
-    location.href = "../index.html";
-  });
-}
+  // === LOGIN ===
+  const btnLogin = document.getElementById("btn-login");
+  if (btnLogin) {
+    btnLogin.addEventListener("click", () => {
+      const name = document.getElementById("login-name").value.trim();
+      const pass = document.getElementById("login-pass").value.trim();
+      const users = loadUsers();
 
-// === Přihlášení ===
-const btnLogin = document.getElementById("btn-login");
-if (btnLogin) {
-  btnLogin.addEventListener("click", () => {
-    const name = (document.getElementById("login-name").value || "").trim();
-    const pass = (document.getElementById("login-pass").value || "").trim();
-    const users = loadUsers();
+      if (!users[name]) return alert("Uživatel neexistuje!");
+      if (users[name].pass !== hashPass(pass)) return alert("Špatné heslo!");
 
-    if (!users[name]) return alert("Uživatel neexistuje!");
-    if (users[name].pass !== hashPass(pass)) return alert("Špatné heslo!");
+      setCurrentUser(name);
+      alert("✅ Přihlášeno");
+      location.href = "../index.html";
+    });
+  }
 
-    setCurrentUser(name);
-    alert("✅ Přihlášeno");
-    location.href = "../index.html";
-  });
-}
-
-// === Hra (Cookie Clicker s nástroji + chat vpravo) ===
-document.addEventListener("DOMContentLoaded", () => {
+  // === HRA ===
   const cookie = document.getElementById("cookie");
   const countDisplay = document.getElementById("count");
   const saveBtn = document.getElementById("save-btn");
@@ -144,25 +114,18 @@ document.addEventListener("DOMContentLoaded", () => {
       saveGame();
     });
 
-    saveBtn?.addEventListener("click", () => {
-      saveGame();
-      alert("💾 Uloženo!");
-    });
-
+    saveBtn?.addEventListener("click", () => { saveGame(); alert("💾 Uloženo!"); });
     resetBtn?.addEventListener("click", () => {
-      if (confirm("Opravdu chceš resetovat hru?")) {
-        count = 0;
-        inventory = [];
-        saveGame();
-        updateDisplay();
-        renderInventory();
+      if (confirm("Resetovat hru?")) {
+        count = 0; inventory = [];
+        saveGame(); updateDisplay(); renderInventory();
       }
     });
 
     exportBtn?.addEventListener("click", () => {
       const data = JSON.stringify({ cookies: count, inventory });
       navigator.clipboard.writeText(data);
-      alert("📋 Exportováno do schránky!");
+      alert("📋 Exportováno!");
     });
 
     importBtn?.addEventListener("click", () => {
@@ -172,9 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const parsed = JSON.parse(data);
         count = parsed.cookies || 0;
         inventory = parsed.inventory || [];
-        saveGame();
-        updateDisplay();
-        renderInventory();
+        saveGame(); updateDisplay(); renderInventory();
       } catch {
         alert("❌ Neplatný formát!");
       }
@@ -202,39 +163,25 @@ document.addEventListener("DOMContentLoaded", () => {
       inventory.forEach((id) => {
         const t = tools.find((x) => x.id === id);
         const li = document.createElement("li");
-        li.innerHTML = `${t.name} • +${t.bonus} 🍪 / klik <button class="btn" style="margin-left:8px;" onclick="window.sellTool('${id}')">💰 Prodat</button>`;
+        li.innerHTML = `${t.name} • +${t.bonus} 🍪 / klik`;
         inventoryList.appendChild(li);
       });
     }
 
     function buyTool(tool) {
       if (inventory.includes(tool.id)) return;
-      if (count < tool.cost) return alert("❌ Nemáš dost sušenek!");
+      if (count < tool.cost) return alert("❌ Máš málo sušenek!");
       count -= tool.cost;
       inventory.push(tool.id);
-      saveGame();
-      updateDisplay();
-      renderInventory();
-      renderShop();
+      saveGame(); updateDisplay(); renderInventory(); renderShop();
     }
-
-    window.sellTool = function (id) {
-      const tool = tools.find((x) => x.id === id);
-      if (!tool) return;
-      if (!confirm(`Prodat ${tool.name} za ${tool.cost / 2} sušenek?`)) return;
-      inventory = inventory.filter((i) => i !== id);
-      count += tool.cost / 2;
-      saveGame();
-      updateDisplay();
-      renderInventory();
-      renderShop();
-    };
 
     function saveGame() {
       if (!username || !users[username]) return;
       users[username].cookies = count;
       users[username].inventory = inventory;
       saveUsers(users);
+      updateLeaderboard();
     }
 
     function getBonus() {
@@ -248,100 +195,22 @@ document.addEventListener("DOMContentLoaded", () => {
       countDisplay.textContent = count;
     }
   }
+
+  // 🏆 LEADERBOARD
+  window.updateLeaderboard = function () {
+    const list = document.getElementById("leaderboard");
+    if (!list) return;
+    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    const sorted = Object.entries(users)
+      .map(([name, u]) => ({ name, cookies: u.cookies || 0 }))
+      .sort((a, b) => b.cookies - a.cookies);
+    list.innerHTML = "";
+    if (!sorted.length) list.innerHTML = "<li>Žádní hráči zatím nejsou.</li>";
+    sorted.forEach((p, i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span>#${i + 1}</span> ${p.name} <span>${p.cookies} 🍪</span>`;
+      list.appendChild(li);
+    });
+  };
+  updateLeaderboard();
 });
-
-// 💎 ZOBRAZENÍ ADMIN PANELU (vedoucí nebo admin)
-document.addEventListener("DOMContentLoaded", () => {
-  const current = localStorage.getItem("currentUser");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const user = users[current];
-  const panel = document.getElementById("admin-panel");
-
-  if (!panel) return;
-
-  if (user && (user.role === "vedouci" || user.role === "admin" || user.email?.toLowerCase() === "susenky17@gmail.com")) {
-    panel.style.display = "block";
-    console.log("✅ Admin panel zobrazen!");
-  } else {
-    console.warn("❌ Uživateli není admin panel povolen.");
-  }
-});
-
-// 💎 Funkce pro admin panel (globálně přístupné)
-window.addAdmin = function () {
-  const username = document.getElementById("admin-name").value.trim();
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-
-  if (!username) return alert("❗ Zadej jméno uživatele!");
-  if (!users[username]) return alert("❌ Uživatel neexistuje!");
-
-  users[username].role = "admin";
-  localStorage.setItem("users", JSON.stringify(users));
-  alert(`✅ ${username} byl povýšen na admina!`);
-  listAdmins();
-};
-
-// 🧹 Vypsání adminů
-window.listAdmins = function () {
-  const list = document.getElementById("admin-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  list.innerHTML = "";
-
-  const admins = Object.entries(users).filter(([_, u]) => u.role === "admin" || u.role === "vedouci");
-  if (!admins.length) {
-    list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
-    return;
-  }
-
-  admins.forEach(([name, u]) => {
-    const li = document.createElement("li");
-    li.innerHTML = `👑 <b>${name}</b> • ${u.role}`;
-    list.appendChild(li);
-  });
-};
-
-// 🍪 Přidání sušenek
-window.giveCookies = function () {
-  const current = localStorage.getItem("currentUser");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  if (!current || !users[current]) return;
-
-  users[current].cookies = (users[current].cookies || 0) + 1000;
-  localStorage.setItem("users", JSON.stringify(users));
-  alert("🍪 Přidáno 1000 sušenek!");
-};
-
-// 🧹 Smazání všech účtů
-window.clearUsers = function () {
-  if (confirm("Opravdu chceš smazat všechny účty?")) {
-    localStorage.removeItem("users");
-    localStorage.removeItem("currentUser");
-    alert("🧹 Všechny účty byly smazány.");
-    location.reload();
-  }
-};
-
-// 👥 Vypsání všech registrovaných uživatelů
-window.listUsers = function () {
-  const list = document.getElementById("user-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  list.innerHTML = "";
-
-  if (!Object.keys(users).length) {
-    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
-    return;
-  }
-
-  for (const [name, u] of Object.entries(users)) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
-        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
-        <div>
-          <strong>${name}</strong><br>
-          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
-        </div>
-      </div>`;
-    list.appendChild(li);
-  }
-};
