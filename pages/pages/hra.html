@@ -4,9 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hra • Sušenka Web</title>
- <link rel="stylesheet" href="style.css">
-<script src="script.js" defer></script>
-<script type="module" src="chat.js" defer></script>
+  <link rel="stylesheet" href="../style.css" />
+
+  <!-- 🔥 Firebase SDK musí být před script.js -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+
+  <!-- ⚙️ Hlavní logika hry + leaderboard -->
+  <script src="../script.js" defer></script>
+
+  <!-- 💬 Chat (necháváme přesně jak máš, je perfektní) -->
+  <script type="module" src="../chat.js" defer></script>
+
 
   ...
 </head>
