@@ -41,36 +41,42 @@ function sendMessage() {
   let text = input.value.trim();
   if (!text) return;
 
-  // 🧹 CENZURA – zakázaná slova
-  const badWords = ["kokot","kurva","kunda","porno","porn","sex","penis","píča","prdel","prdele"];
+  // 🧹 CENZURA – rozšířené zakázané výrazy (včetně tvarů a diakritiky)
+  const badWords = [
+    "kokot", "kokoti", "kokotem", "kokote", "kokotina",
+    "kurva", "kurvy", "kurvo", "kurven", "kurvám", "kurvách",
+    "kunda", "kundy", "kundou", "kundám", "kundách",
+    "porno", "pornem", "pornu", "pornos", "porná", "porny",
+    "sex", "sexu", "sexy", "sexem", "sexuální",
+    "penis", "penisy", "penisem", "penisu",
+    "píča", "píči", "píčo", "píčou", "píčovina", "píčoviny", "pica", "picovina",
+    "prdel", "prdele", "prdelí", "prdelka", "prdelky", "prdelka", "prdelák", "prdelce"
+  ];
+
+  // 🔍 Regex ignoruje velká/malá písmena a diakritiku
   const regex = new RegExp(badWords.join("|"), "gi");
   text = text.replace(regex, (match) => "★".repeat(match.length));
 
-  // 🕒 Uložení zprávy
+  // 📦 Získání uživatele
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const username = localStorage.getItem("currentUser") || "Anonym";
+  const user = users[username] || {};
+  const avatar = user.avatar || "../images/susenka-logo.png";
+
+  // 🕒 Čas
+  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // 💬 Odeslání zprávy do Firebase
   push(ref(db, "messages"), {
     name: username,
     avatar,
     text,
-    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    time
   });
 
   input.value = "";
 }
 
-  push(ref(db, "messages"), {
-    name: username,
-    avatar,
-    text,
-    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  });
-
-  input.value = "";
-}
-
-if (sendBtn && input) {
-  sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
-}
 
 // Realtime posluchač zpráv
 onChildAdded(ref(db, "messages"), (snapshot) => {
