@@ -261,69 +261,71 @@ if (btnRegister) {
     }
   }
 
-  // 💎 Admin funkce
-  window.addAdmin = function () {
-    const username = document.getElementById("admin-name").value.trim();
-    const users = loadUsers();
-    if (!users[username]) return alert("❌ Uživatel neexistuje!");
-    users[username].role = "admin";
-    saveUsers(users);
-    alert(`✅ ${username} byl povýšen na admina!`);
-    listAdmins();
-  };
-
-  window.listAdmins = function () {
-    const list = document.getElementById("admin-list");
-    const users = loadUsers();
-    list.innerHTML = "";
-    for (const [name, u] of Object.entries(users)) {
-      if (u.role === "admin") {
-        const li = document.createElement("li");
-        li.textContent = `👑 ${name} (${u.email || "bez e-mailu"})`;
-        list.appendChild(li);
-      }
-    }
-    if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
-  };
-
-  window.giveCookies = function () {
-    alert("🍪 +1000 sušenek! (zatím jen testovací funkce)");
-  };
-
-  window.clearUsers = function () {
-    if (confirm("Opravdu chceš smazat všechny účty?")) {
-      localStorage.removeItem("users");
-      localStorage.removeItem("currentUser");
-      alert("🧹 Všechny účty byly smazány.");
-      location.reload();
-    }
-  };
-
-  window.listUsers = function () {
-    const list = document.getElementById("user-list");
-    const users = loadUsers();
-    list.innerHTML = "";
-    if (!Object.keys(users).length) {
-      list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
-      return;
-    }
-    for (const [name, u] of Object.entries(users)) {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
-          <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
-          <div>
-            <strong>${name}</strong><br>
-            <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
-          </div>
-        </div>`;
-      list.appendChild(li);
-    }
-  };
-});
-import { showAllUsers } from "./users.js";
-
-window.listUsers = function() {
-  showAllUsers();
+ // 💎 ====== ADMIN PANEL FUNKCE ======
+window.addAdmin = function () {
+  const username = document.getElementById("admin-name").value.trim();
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  if (!users[username]) {
+    alert("❌ Uživatel neexistuje!");
+    return;
+  }
+  users[username].role = "admin";
+  localStorage.setItem("users", JSON.stringify(users));
+  alert(`✅ ${username} byl povýšen na admina!`);
+  window.listAdmins();
 };
 
+window.listAdmins = function () {
+  const list = document.getElementById("admin-list");
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  list.innerHTML = "";
+  for (const [name, u] of Object.entries(users)) {
+    if (u.role === "admin") {
+      const li = document.createElement("li");
+      li.textContent = `👑 ${name} (${u.email || "bez e-mailu"})`;
+      list.appendChild(li);
+    }
+  }
+  if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+};
+
+window.giveCookies = function () {
+  let count = parseInt(localStorage.getItem("count")) || 0;
+  count += 1000;
+  localStorage.setItem("count", count);
+  alert("🍪 Přidáno 1000 sušenek!");
+};
+
+window.clearUsers = function () {
+  if (confirm("Opravdu chceš smazat všechny účty?")) {
+    localStorage.removeItem("users");
+    localStorage.removeItem("currentUser");
+    alert("🧹 Všechny účty byly smazány.");
+    location.reload();
+  }
+};
+
+window.listUsers = function () {
+  const list = document.getElementById("user-list");
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  list.innerHTML = "";
+
+  if (!Object.keys(users).length) {
+    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
+    return;
+  }
+
+  for (const [name, u] of Object.entries(users)) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
+        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
+        <div>
+          <strong>${name}</strong><br>
+          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
+        </div>
+      </div>
+    `;
+    list.appendChild(li);
+  }
+};
