@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sušenka Web</title>
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -20,6 +19,7 @@
       <a href="pages/kontakt.html">Kontakt</a>
       <a href="pages/faq.html">FAQ</a>
       <a href="pages/pravidla.html">Pravidla</a>
+      <a href="pages/chat.html">Chat</a>
       <a href="pages/auth.html">Přihlášení</a>
     </nav>
   </header>
@@ -57,26 +57,51 @@
       </article>
     </section>
 
-    <!-- 💎 ADMIN PANEL (jen pro vedoucího) -->
+    <!-- 💎 ADMIN PANEL (jen pro vedoucího nebo admina) -->
     <div id="admin-panel" class="card" style="display:none;">
       <h3>💎 Admin Panel</h3>
       <button class="btn" onclick="giveCookies()">+1000 sušenek</button>
       <button class="btn" onclick="clearUsers()">Smazat všechny účty</button>
 
       <hr style="margin:20px 0;opacity:.2">
+
       <h4>👑 Správa adminů</h4>
-      <hr style="margin:20px 0;opacity:.2">
-<h4>📜 Registrované účty</h4>
-<button class="btn" onclick="listUsers()">Zobrazit všechny účty</button>
-<ul id="user-list" style="margin-top:10px;list-style:none;padding:0;color:var(--muted)"></ul>
       <input id="admin-name" placeholder="uživatelské jméno"
              style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
       <button class="btn primary" onclick="addAdmin()">Přidat admina</button>
       <button class="btn" onclick="listAdmins()">Zobrazit adminy</button>
       <ul id="admin-list" style="margin-top:10px;list-style:none;padding:0;color:var(--muted)"></ul>
+
+      <hr style="margin:20px 0;opacity:.2">
+
+      <h4>📜 Registrované účty</h4>
+      <button class="btn" onclick="listUsers()">Zobrazit všechny účty</button>
+      <ul id="user-list" style="margin-top:10px;list-style:none;padding:0;color:var(--muted)"></ul>
     </div>
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
+
+  <!-- ✅ Skript přesunutý dolů -->
+  <script src="script.js"></script>
+  <script>
+    // 💎 Oznámení po aktivaci admin panelu
+    window.addEventListener("load", () => {
+      const current = localStorage.getItem("currentUser");
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const user = users[current];
+      if (user && (user.role === "vedouci" || user.role === "admin" || user.email === "susenky17@gmail.com")) {
+        const panel = document.getElementById("admin-panel");
+        if (panel) {
+          panel.style.display = "block";
+          const notice = document.createElement("div");
+          notice.textContent = "💎 Admin panel aktivován!";
+          notice.style = "position:fixed;top:10px;right:10px;background:#6c5ce7;color:white;padding:10px 16px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:9999;";
+          document.body.appendChild(notice);
+          setTimeout(() => notice.remove(), 3500);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
