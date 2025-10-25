@@ -1,3 +1,4 @@
+
 / ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA, ADMIN, LEADERBOARD) ========== /
 
 console.log("✅ Sušenka Web – hlavní skript načten");
