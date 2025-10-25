@@ -1,6 +1,20 @@
-// ========== 💬 SUŠENKA CHAT ========== //
-import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, onDisconnect, remove, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+// ========== 💬 SUŠENKA CHAT (bez duplicate-app chyby) ========== //
+import {
+  initializeApp,
+  getApps,
+  getApp
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+
+import {
+  getDatabase,
+  ref,
+  push,
+  onChildAdded,
+  set,
+  onDisconnect,
+  remove,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 // 🔥 Firebase config
 const firebaseConfig = {
@@ -14,28 +28,27 @@ const firebaseConfig = {
   measurementId: "G-012LNBPFGJ"
 };
 
-// ✅ Inicializuj Firebase jen jednou
+// ✅ Zabráníme chybě “Firebase App '[DEFAULT]' already exists”
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-
-// 📦 DOM
+// 📦 DOM prvky
 const chatBox = document.getElementById("chat-box");
 const sendBtn = document.getElementById("send-btn");
 const input = document.getElementById("chat-message");
 const onlineList = document.getElementById("online-users");
 
+// 🔐 Data o uživateli
 const users = JSON.parse(localStorage.getItem("users") || "{}");
 const username = localStorage.getItem("currentUser") || "Anonym";
 const avatar = (users[username]?.avatar) || "../images/susenka-logo.png";
-const userRef = ref(db, "online/" + username);
 
-// 🟢 Online status
+// === 🟢 ONLINE STATUS ===
+const userRef = ref(db, "online/" + username);
 set(userRef, true);
 onDisconnect(userRef).remove();
 
 // 🧍 Aktualizace online seznamu
-import { onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 onValue(ref(db, "online"), (snapshot) => {
   const data = snapshot.val() || {};
   onlineList.innerHTML = "";
@@ -46,24 +59,26 @@ onValue(ref(db, "online"), (snapshot) => {
   });
 });
 
-// 💬 Odeslání zprávy
-sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
+// === 💬 ODESÍLÁNÍ ZPRÁV ===
+if (sendBtn && input) {
+  sendBtn.addEventListener("click", sendMessage);
+  input.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
+}
 
 function sendMessage() {
   let text = input.value.trim();
   if (!text) return;
 
-  // 🧹 CENZURA rozšířených výrazů
+  // 🧹 Cenzura sprostých slov (včetně variant)
   const badWords = [
-    "kokot", "kokoti", "kokotem", "kokote", "kokotina",
-    "kurva", "kurvy", "kurvo", "kurven", "kurvám", "kurvách",
-    "kunda", "kundy", "kundou", "kundám", "kundách",
-    "porno", "pornem", "pornu", "pornos", "porny",
-    "sex", "sexu", "sexy", "sexem", "sexuální",
-    "penis", "penisy", "penisem", "penisu",
-    "píča", "píči", "píčo", "píčou", "píčovina", "píčoviny", "pica", "picovina",
-    "prdel", "prdele", "prdelí", "prdelka", "prdelky", "prdelce"
+    "kokot","kokoti","kokotem","kokote","kokotina",
+    "kurva","kurvy","kurvo","kurven","kurvám","kurvách",
+    "kunda","kundy","kundou","kundám","kundách",
+    "porno","pornem","pornu","pornos","porny",
+    "sex","sexu","sexy","sexem","sexuální",
+    "penis","penisy","penisem","penisu",
+    "píča","píči","píčo","píčou","píčovina","píčoviny","pica","picovina",
+    "prdel","prdele","prdelí","prdelka","prdelky","prdelce"
   ];
   const regex = new RegExp(`\\b(${badWords.join("|")})\\b`, "gi");
   text = text.replace(regex, (match) => "★".repeat(match.length));
@@ -78,7 +93,7 @@ function sendMessage() {
   input.value = "";
 }
 
-// 💬 Načítání zpráv
+// === 💬 ZOBRAZENÍ ZPRÁV ===
 onChildAdded(ref(db, "messages"), (snapshot) => {
   const msg = snapshot.val();
   const isOwn = msg.name === username;
@@ -87,7 +102,7 @@ onChildAdded(ref(db, "messages"), (snapshot) => {
   msgDiv.className = "msg";
   msgDiv.innerHTML = `
     <div class="chat-row ${isOwn ? "own" : ""}">
-      <img src="${msg.avatar}" class="chat-avatar">
+      <img src="${msg.avatar}" class="chat-avatar" width="28" height="28" style="border-radius:50%;object-fit:cover;">
       <div class="bubble ${isOwn ? "own-bubble" : ""}">
         <b>${msg.name}</b><br>${msg.text}
         <span class="time">${msg.time}</span>
