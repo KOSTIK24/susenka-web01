@@ -250,39 +250,88 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// 💎 ADMIN PANEL FUNKCE
+// 💎 ZOBRAZENÍ ADMIN PANELU (vedoucí nebo admin)
+document.addEventListener("DOMContentLoaded", () => {
+  const current = localStorage.getItem("currentUser");
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const user = users[current];
+  const panel = document.getElementById("admin-panel");
+
+  if (!panel) return;
+
+  if (user && (user.role === "vedouci" || user.role === "admin" || user.email?.toLowerCase() === "susenky17@gmail.com")) {
+    panel.style.display = "block";
+    console.log("✅ Admin panel zobrazen!");
+  } else {
+    console.warn("❌ Uživateli není admin panel povolen.");
+  }
+});
+
+// 💎 Funkce pro admin panel (globálně přístupné)
 window.addAdmin = function () {
   const username = document.getElementById("admin-name").value.trim();
-  const users = loadUsers();
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+
+  if (!username) return alert("❗ Zadej jméno uživatele!");
   if (!users[username]) return alert("❌ Uživatel neexistuje!");
+
   users[username].role = "admin";
-  saveUsers(users);
+  localStorage.setItem("users", JSON.stringify(users));
   alert(`✅ ${username} byl povýšen na admina!`);
-  window.listAdmins();
+  listAdmins();
 };
 
+// 🧹 Vypsání adminů
 window.listAdmins = function () {
   const list = document.getElementById("admin-list");
-  const users = loadUsers();
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
   list.innerHTML = "";
-  for (const [name, u] of Object.entries(users)) {
-    if (u.role === "admin") {
-      const li = document.createElement("li");
-      li.textContent = `👑 ${name} (${u.email || "bez e-mailu"})`;
-      list.appendChild(li);
-    }
+
+  const admins = Object.entries(users).filter(([_, u]) => u.role === "admin" || u.role === "vedouci");
+  if (!admins.length) {
+    list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+    return;
   }
-  if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+
+  admins.forEach(([name, u]) => {
+    const li = document.createElement("li");
+    li.innerHTML = `👑 <b>${name}</b> • ${u.role}`;
+    list.appendChild(li);
+  });
 };
 
+// 🍪 Přidání sušenek
+window.giveCookies = function () {
+  const current = localStorage.getItem("currentUser");
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  if (!current || !users[current]) return;
+
+  users[current].cookies = (users[current].cookies || 0) + 1000;
+  localStorage.setItem("users", JSON.stringify(users));
+  alert("🍪 Přidáno 1000 sušenek!");
+};
+
+// 🧹 Smazání všech účtů
+window.clearUsers = function () {
+  if (confirm("Opravdu chceš smazat všechny účty?")) {
+    localStorage.removeItem("users");
+    localStorage.removeItem("currentUser");
+    alert("🧹 Všechny účty byly smazány.");
+    location.reload();
+  }
+};
+
+// 👥 Vypsání všech registrovaných uživatelů
 window.listUsers = function () {
   const list = document.getElementById("user-list");
-  const users = loadUsers();
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
   list.innerHTML = "";
+
   if (!Object.keys(users).length) {
     list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
     return;
   }
+
   for (const [name, u] of Object.entries(users)) {
     const li = document.createElement("li");
     li.innerHTML = `
@@ -292,41 +341,7 @@ window.listUsers = function () {
           <strong>${name}</strong><br>
           <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
         </div>
-      </div>
-    `;
+      </div>`;
     list.appendChild(li);
   }
 };
-
-window.giveCookies = function () {
-  let count = parseInt(localStorage.getItem("count")) || 0;
-  count += 1000;
-  localStorage.setItem("count", count);
-  alert("🍪 Přidáno 1000 sušenek!");
-};
-
-window.clearUsers = function () {
-  if (confirm("Opravdu chceš smazat všechny účty?")) {
-    localStorage.removeItem("users");
-    localStorage.removeItem("currentUser");
-    alert("🧹 Všechny účty byly smazány.");
-    location.reload();
-  }
-};
-// 🏆 LEADERBOARD
-document.addEventListener("DOMContentLoaded", () => {
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const leaderboard = document.getElementById("leaderboard");
-  if (!leaderboard) return;
-
-  const sorted = Object.entries(users)
-    .sort((a, b) => (b[1].cookies || 0) - (a[1].cookies || 0))
-    .slice(0, 10);
-
-  leaderboard.innerHTML = "";
-  sorted.forEach(([name, u], i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `#${i + 1} <b>${name}</b> – ${u.cookies || 0} 🍪`;
-    leaderboard.appendChild(li);
-  });
-});
