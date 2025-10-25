@@ -38,8 +38,24 @@ if (username) {
 
 // Funkce odeslání zprávy
 function sendMessage() {
-  const text = input.value.trim();
+  let text = input.value.trim();
   if (!text) return;
+
+  // 🧹 CENZURA – zakázaná slova
+  const badWords = ["kokot","kurva","kunda","porno","porn","sex","penis","píča","prdel","prdele"];
+  const regex = new RegExp(badWords.join("|"), "gi");
+  text = text.replace(regex, (match) => "★".repeat(match.length));
+
+  // 🕒 Uložení zprávy
+  push(ref(db, "messages"), {
+    name: username,
+    avatar,
+    text,
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  });
+
+  input.value = "";
+}
 
   push(ref(db, "messages"), {
     name: username,
