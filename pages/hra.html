@@ -8,79 +8,30 @@
   <script type="module" src="../script.js" defer></script>
   <script type="module" src="../chat.js" defer></script>
   <style>
-    /* 💬 Rozložení chat + hra + leaderboard vedle sebe */
+    /* ===== 🧱 ROZLOŽENÍ TŘÍ PANELŮ ===== */
     main.container {
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: 1fr 2fr 1.3fr;
       gap: 30px;
-      flex-wrap: nowrap;
-      margin-top: 40px;
+      align-items: start;
+      justify-content: center;
+      margin: 40px auto;
+      max-width: 1400px;
     }
 
-    /* 📱 Na menších obrazovkách přepnout na sloupec */
     @media (max-width: 1000px) {
       main.container {
+        display: flex;
         flex-direction: column;
         align-items: center;
       }
     }
 
-    /* 🎮 Větší karty */
-    .card {
-      padding: 26px;
-      border-radius: 20px;
-    }
-
-    /* 💬 Chat styl */
-    aside.chat-panel {
-      flex: 1;
-      min-width: 300px;
-      max-width: 350px;
-      height: 650px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .chat-box {
-      flex: 1;
-      overflow-y: auto;
-      padding: 14px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 14px;
-      margin-bottom: 12px;
-    }
-
-    .chat-input {
-      display: flex;
-      gap: 10px;
-      margin-top: auto;
-    }
-
-    .chat-input input {
-      flex: 1;
-      padding: 10px 12px;
-      border-radius: 12px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      color: white;
-      font-size: 14px;
-    }
-
-    /* 🍪 Hra */
-    section.game-card {
-      flex: 2;
-      min-width: 400px;
-      max-width: 600px;
-      text-align: center;
-    }
-
-    /* 🏆 Leaderboard styl */
-    aside.leaderboard-panel {
-      flex: 1;
-      min-width: 300px;
-      max-width: 350px;
-      height: 650px;
+    /* 🏆 ŽEBŘÍČEK VLEVO */
+    .leaderboard-panel {
+      min-width: 260px;
+      max-width: 320px;
+      height: 400px;
       overflow-y: auto;
     }
 
@@ -91,6 +42,73 @@
       margin-bottom: 8px;
       font-weight: 600;
     }
+
+    /* 🎮 HRA UPROSTŘED */
+    .game-card {
+      text-align: center;
+      min-width: 400px;
+      max-width: 600px;
+    }
+
+    .cookie {
+      width: 200px;
+      height: 200px;
+    }
+
+    /* 💬 CHAT VPRAVO – širší, nižší */
+    .chat-panel {
+      min-width: 380px;
+      max-width: 420px;
+      height: 500px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .chat-box {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    /* 🧱 Lepší card styl */
+    .card {
+      padding: 26px;
+      border-radius: 20px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.4);
+    }
+
+    .bubble {
+      background: linear-gradient(145deg, #a770ef, #6c5ce7);
+      border-radius: 14px;
+      padding: 8px 12px;
+      display: inline-block;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    .own .bubble {
+      background: linear-gradient(145deg, #8f7cff, #6c5ce7);
+    }
+
   </style>
 </head>
 <body>
@@ -109,22 +127,16 @@
     </nav>
   </header>
 
-  <!-- 🧱 Tři panely: CHAT | HRA | LEADERBOARD -->
+  <!-- 🧱 3 PANELY: LEADERBOARD | HRA | CHAT -->
   <main class="container">
 
-    <!-- 💬 CHAT vlevo -->
-    <aside class="card chat-panel animate-pop">
-      <h2>💬 Chat</h2>
-      <div id="chat-box" class="chat-box"></div>
-      <div class="chat-input">
-        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
-        <button id="send-btn" class="btn">📤</button>
-      </div>
-      <h3 style="margin-top:16px;">🟢 Online</h3>
-      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
+    <!-- 🏆 Žebříček vlevo -->
+    <aside class="card leaderboard-panel animate-pop">
+      <h2>🏆 Žebříček hráčů</h2>
+      <ul id="leaderboard" style="list-style:none;padding:0;color:var(--muted);margin:0;"></ul>
     </aside>
 
-    <!-- 🍪 HRA uprostřed -->
+    <!-- 🍪 Hra uprostřed -->
     <section class="card game-card animate-pop">
       <h2>🍪 Sušenka Hra – Nástroje</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
@@ -151,10 +163,18 @@
       </div>
     </section>
 
-    <!-- 🏆 LEADERBOARD vpravo -->
-    <aside class="card leaderboard-panel animate-pop">
-      <h2>🏆 Žebříček hráčů</h2>
-      <ul id="leaderboard" style="list-style:none;padding:0;color:var(--muted);margin:0;"></ul>
+    <!-- 💬 Chat vpravo -->
+    <aside class="card chat-panel animate-pop">
+      <h2>💬 Chat</h2>
+      <div id="chat-box" class="chat-box"></div>
+
+      <div class="chat-input">
+        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
+        <button id="send-btn" class="btn">📤</button>
+      </div>
+
+      <h3 style="margin-top:10px;">🟢 Online</h3>
+      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
 
   </main>
