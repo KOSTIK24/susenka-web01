@@ -21,7 +21,8 @@ function updateLeaderboardFirebase() {
 
   const score = users[username].cookies || 0;
   set(ref(db, "leaderboard/" + username), { name: username, cookies: score });
-}
+}db.ref("leaderboard/" + username).set({ name: username, cookies: score });
+
 
 // Poslouchání leaderboardu a zobrazení
 const leaderboardEl = document.getElementById("leaderboard");
