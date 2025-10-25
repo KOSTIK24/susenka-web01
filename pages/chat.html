@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chat • Sušenka Web</title>
   <link rel="stylesheet" href="../style.css" />
-<script type="module" src="../chat.js"></script>
+  <script type="module" src="../chat.js" defer></script>
 </head>
 <body>
   <header class="topbar">
@@ -23,8 +23,8 @@
     </nav>
   </header>
 
-  <main class="container">
-    <section class="card animate-pop" id="chat-section">
+  <main class="container" style="display:flex;gap:20px;flex-wrap:wrap;">
+    <section class="card animate-pop" id="chat-section" style="flex:2;">
       <h2>💬 Sušenka Chat</h2>
       <div id="chat-box" class="chat-box"></div>
 
@@ -33,6 +33,11 @@
         <button id="send-btn" class="btn">📤 Odeslat</button>
       </div>
     </section>
+
+    <aside class="card animate-pop" style="flex:1;min-width:220px;">
+      <h3>🟢 Online uživatelé</h3>
+      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
+    </aside>
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
