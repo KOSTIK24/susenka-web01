@@ -1,6 +1,6 @@
 // ========== 💬 SUŠENKA CHAT ========== //
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded, set, onDisconnect, remove, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 // 🔥 Firebase config
 const firebaseConfig = {
@@ -14,8 +14,10 @@ const firebaseConfig = {
   measurementId: "G-012LNBPFGJ"
 };
 
-const app = initializeApp(firebaseConfig);
+// ✅ Inicializuj Firebase jen jednou
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
 
 // 📦 DOM
 const chatBox = document.getElementById("chat-box");
