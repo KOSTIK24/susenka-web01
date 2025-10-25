@@ -1,44 +1,11 @@
-/ ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA + ADMIN) ========== /
-
+// ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA, ADMIN PANEL) ==========
 console.log("✅ Sušenka Web – hlavní skript načten");
 
-document.addEventListener("DOMContentLoaded", () => {
-  // === Pomocné funkce ===
-  const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
-  const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
-  const setCurrentUser = (name) => localStorage.setItem("currentUser", name);
-  const getCurrentUser = () => localStorage.getItem("currentUser");
-  const hashPass = (str) => btoa(unescape(encodeURIComponent(str)));
-
-  const topbarAvatar = document.getElementById("topbar-avatar");
-  const topbarUsername = document.getElementById("topbar-username");
-
-  // === Zobrazení přihlášeného uživatele ===
-  renderTopbarUser();
-  function renderTopbarUser() {
-    const username = getCurrentUser();
-    if (!username) return;
-    const users = loadUsers();
-    const user = users[username];
-    if (!user) return;
-
-    if (topbarAvatar) topbarAvatar.src = user.avatar || "images/susenka-logo.png";
-    if (topbarUsername) {
-      if (user.email === "susenky17@gmail.com") {
-        topbarUsername.innerHTML = `💎 Vedoucí: <b>${username}</b>`;
-      } else if (user.role === "admin") {
-        topbarUsername.innerHTML = `👑 Admin: <b>${username}</b>`;
-      } else {
-        topbarUsername.textContent = username;
-      }
-    }
-  }
-
-  // === Registrace ===
+// Firebase moduly
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
 import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-// Firebase konfigurace
+// 🔥 Firebase konfigurace
 const firebaseConfig = {
   apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
   authDomain: "susenka-web-chat.firebaseapp.com",
@@ -52,6 +19,38 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// Pomocné funkce
+const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
+const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
+const setCurrentUser = (name) => localStorage.setItem("currentUser", name);
+const getCurrentUser = () => localStorage.getItem("currentUser");
+const hashPass = (str) => btoa(unescape(encodeURIComponent(str)));
+
+// === Zobrazení přihlášeného uživatele ===
+document.addEventListener("DOMContentLoaded", () => {
+  const topbarAvatar = document.getElementById("topbar-avatar");
+  const topbarUsername = document.getElementById("topbar-username");
+
+  const username = getCurrentUser();
+  if (!username) return;
+
+  const users = loadUsers();
+  const user = users[username];
+  if (!user) return;
+
+  if (topbarAvatar) topbarAvatar.src = user.avatar || "images/susenka-logo.png";
+  if (topbarUsername) {
+    if (user.email === "susenky17@gmail.com") {
+      topbarUsername.innerHTML = `💎 Vedoucí: <b>${username}</b>`;
+    } else if (user.role === "admin") {
+      topbarUsername.innerHTML = `👑 Admin: <b>${username}</b>`;
+    } else {
+      topbarUsername.textContent = username;
+    }
+  }
+});
+
+// === Registrace ===
 const btnRegister = document.getElementById("btn-register");
 if (btnRegister) {
   btnRegister.addEventListener("click", async () => {
@@ -62,12 +61,12 @@ if (btnRegister) {
 
     if (!name || !email || !pass) return alert("Vyplň jméno, e-mail a heslo!");
 
-    const users = JSON.parse(localStorage.getItem("users") || "{}");
+    const users = loadUsers();
     if (users[name]) return alert("Uživatel už existuje!");
 
     const isLeader = email === "susenky17@gmail.com";
     const newUser = {
-      pass: btoa(unescape(encodeURIComponent(pass))),
+      pass: hashPass(pass),
       email,
       avatar: avatar || "images/susenka-logo.png",
       role: isLeader ? "vedouci" : "clen",
@@ -76,10 +75,10 @@ if (btnRegister) {
     };
 
     users[name] = newUser;
-    localStorage.setItem("users", JSON.stringify(users));
-    localStorage.setItem("currentUser", name);
+    saveUsers(users);
+    setCurrentUser(name);
 
-    // 🔥 Uložení do Firebase
+    // Uložení do Firebase
     await set(ref(db, "users/" + name), {
       username: name,
       email,
@@ -93,25 +92,25 @@ if (btnRegister) {
   });
 }
 
+// === Přihlášení ===
+const btnLogin = document.getElementById("btn-login");
+if (btnLogin) {
+  btnLogin.addEventListener("click", () => {
+    const name = (document.getElementById("login-name").value || "").trim();
+    const pass = (document.getElementById("login-pass").value || "").trim();
+    const users = loadUsers();
 
-  // === Přihlášení ===
-  const btnLogin = document.getElementById("btn-login");
-  if (btnLogin) {
-    btnLogin.addEventListener("click", () => {
-      const name = (document.getElementById("login-name").value || "").trim();
-      const pass = (document.getElementById("login-pass").value || "").trim();
-      const users = loadUsers();
+    if (!users[name]) return alert("Uživatel neexistuje!");
+    if (users[name].pass !== hashPass(pass)) return alert("Špatné heslo!");
 
-      if (!users[name]) return alert("Uživatel neexistuje!");
-      if (users[name].pass !== hashPass(pass)) return alert("Špatné heslo!");
+    setCurrentUser(name);
+    alert("✅ Přihlášeno");
+    location.href = "../index.html";
+  });
+}
 
-      setCurrentUser(name);
-      alert("✅ Přihlášeno");
-      location.href = "../index.html";
-    });
-  }
-
-  // === Hra (Cookie Clicker s nástroji) ===
+// === Hra (Cookie Clicker s nástroji + chat vpravo) ===
+document.addEventListener("DOMContentLoaded", () => {
   const cookie = document.getElementById("cookie");
   const countDisplay = document.getElementById("count");
   const saveBtn = document.getElementById("save-btn");
@@ -203,7 +202,7 @@ if (btnRegister) {
       inventory.forEach((id) => {
         const t = tools.find((x) => x.id === id);
         const li = document.createElement("li");
-        li.innerHTML = `${t.name} • +${t.bonus} 🍪 / klik <button class="btn" style="margin-left:8px;" onclick="sellTool('${id}')">💰 Prodat</button>`;
+        li.innerHTML = `${t.name} • +${t.bonus} 🍪 / klik <button class="btn" style="margin-left:8px;" onclick="window.sellTool('${id}')">💰 Prodat</button>`;
         inventoryList.appendChild(li);
       });
     }
@@ -249,35 +248,22 @@ if (btnRegister) {
       countDisplay.textContent = count;
     }
   }
+});
 
-  // 💎 ADMIN PANEL – aktivace
-  const current = getCurrentUser();
-  if (current) {
-    const users = loadUsers();
-    const user = users[current];
-    if (user && (user.role === "vedouci" || user.role === "admin" || user.email === "susenky17@gmail.com")) {
-      const panel = document.getElementById("admin-panel");
-      if (panel) panel.style.display = "block";
-    }
-  }
-
- // 💎 ====== ADMIN PANEL FUNKCE ======
+// 💎 ADMIN PANEL FUNKCE
 window.addAdmin = function () {
   const username = document.getElementById("admin-name").value.trim();
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  if (!users[username]) {
-    alert("❌ Uživatel neexistuje!");
-    return;
-  }
+  const users = loadUsers();
+  if (!users[username]) return alert("❌ Uživatel neexistuje!");
   users[username].role = "admin";
-  localStorage.setItem("users", JSON.stringify(users));
+  saveUsers(users);
   alert(`✅ ${username} byl povýšen na admina!`);
   window.listAdmins();
 };
 
 window.listAdmins = function () {
   const list = document.getElementById("admin-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const users = loadUsers();
   list.innerHTML = "";
   for (const [name, u] of Object.entries(users)) {
     if (u.role === "admin") {
@@ -287,6 +273,29 @@ window.listAdmins = function () {
     }
   }
   if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+};
+
+window.listUsers = function () {
+  const list = document.getElementById("user-list");
+  const users = loadUsers();
+  list.innerHTML = "";
+  if (!Object.keys(users).length) {
+    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
+    return;
+  }
+  for (const [name, u] of Object.entries(users)) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
+        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
+        <div>
+          <strong>${name}</strong><br>
+          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
+        </div>
+      </div>
+    `;
+    list.appendChild(li);
+  }
 };
 
 window.giveCookies = function () {
@@ -302,30 +311,5 @@ window.clearUsers = function () {
     localStorage.removeItem("currentUser");
     alert("🧹 Všechny účty byly smazány.");
     location.reload();
-  }
-};
-
-window.listUsers = function () {
-  const list = document.getElementById("user-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  list.innerHTML = "";
-
-  if (!Object.keys(users).length) {
-    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
-    return;
-  }
-
-  for (const [name, u] of Object.entries(users)) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
-        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
-        <div>
-          <strong>${name}</strong><br>
-          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
-        </div>
-      </div>
-    `;
-    list.appendChild(li);
   }
 };
