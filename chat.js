@@ -1,122 +1,97 @@
-// ========== 💬 SUŠENKA CHAT (Firebase realtime + online seznam) ==========
+// ========== 💬 SUŠENKA CHAT ========== //
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, push, onChildAdded, set, remove, onDisconnect } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded, set, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-// 🔥 Firebase konfigurace
+// 🔥 Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
   authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+  databaseURL: "https://susenka-web-chat-default-rtdb.firebaseio.com",
   projectId: "susenka-web-chat",
   storageBucket: "susenka-web-chat.appspot.com",
   messagingSenderId: "625704029177",
-  appId: "1:625704029177:web:d8510c07f534df48134b28"
+  appId: "1:625704029177:web:d8510c07f534df48134b28",
+  measurementId: "G-012LNBPFGJ"
 };
 
-// Inicializace Firebase
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// HTML elementy
+// 📦 DOM
 const chatBox = document.getElementById("chat-box");
 const sendBtn = document.getElementById("send-btn");
 const input = document.getElementById("chat-message");
 const onlineList = document.getElementById("online-users");
 
-// Uživatelské info
 const users = JSON.parse(localStorage.getItem("users") || "{}");
 const username = localStorage.getItem("currentUser") || "Anonym";
-const user = users[username] || {};
-const avatar = user.avatar || "../images/susenka-logo.png";
+const avatar = (users[username]?.avatar) || "../images/susenka-logo.png";
+const userRef = ref(db, "online/" + username);
 
-// Přidání uživatele do seznamu online
-if (username) {
-  const userRef = ref(db, "online/" + username);
-  set(userRef, { name: username, avatar });
-  onDisconnect(userRef).remove(); // automaticky odebere po odpojení
-}
+// 🟢 Online status
+set(userRef, true);
+onDisconnect(userRef).remove();
 
-// Funkce odeslání zprávy
+// 🧍 Aktualizace online seznamu
+import { onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+onValue(ref(db, "online"), (snapshot) => {
+  const data = snapshot.val() || {};
+  onlineList.innerHTML = "";
+  Object.keys(data).forEach((name) => {
+    const li = document.createElement("li");
+    li.textContent = "🟢 " + name;
+    onlineList.appendChild(li);
+  });
+});
+
+// 💬 Odeslání zprávy
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
+
 function sendMessage() {
   let text = input.value.trim();
   if (!text) return;
 
-  // 🧹 CENZURA – rozšířené zakázané výrazy (včetně tvarů a diakritiky)
+  // 🧹 CENZURA rozšířených výrazů
   const badWords = [
     "kokot", "kokoti", "kokotem", "kokote", "kokotina",
     "kurva", "kurvy", "kurvo", "kurven", "kurvám", "kurvách",
     "kunda", "kundy", "kundou", "kundám", "kundách",
-    "porno", "pornem", "pornu", "pornos", "porná", "porny",
+    "porno", "pornem", "pornu", "pornos", "porny",
     "sex", "sexu", "sexy", "sexem", "sexuální",
     "penis", "penisy", "penisem", "penisu",
     "píča", "píči", "píčo", "píčou", "píčovina", "píčoviny", "pica", "picovina",
-    "prdel", "prdele", "prdelí", "prdelka", "prdelky", "prdelka", "prdelák", "prdelce"
+    "prdel", "prdele", "prdelí", "prdelka", "prdelky", "prdelce"
   ];
-
-  // 🔍 Regex ignoruje velká/malá písmena a diakritiku
-  const regex = new RegExp(badWords.join("|"), "gi");
+  const regex = new RegExp(`\\b(${badWords.join("|")})\\b`, "gi");
   text = text.replace(regex, (match) => "★".repeat(match.length));
 
-  // 📦 Získání uživatele
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const username = localStorage.getItem("currentUser") || "Anonym";
-  const user = users[username] || {};
-  const avatar = user.avatar || "../images/susenka-logo.png";
-
-  // 🕒 Čas
-  const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-  // 💬 Odeslání zprávy do Firebase
   push(ref(db, "messages"), {
     name: username,
     avatar,
     text,
-    time
+    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   });
 
   input.value = "";
 }
 
-
-// Realtime posluchač zpráv
+// 💬 Načítání zpráv
 onChildAdded(ref(db, "messages"), (snapshot) => {
   const msg = snapshot.val();
-  if (!msg) return;
-
   const isOwn = msg.name === username;
 
   const msgDiv = document.createElement("div");
   msgDiv.className = "msg";
   msgDiv.innerHTML = `
-    <div style="display:flex;align-items:flex-end;gap:8px;${isOwn ? "justify-content:flex-end;" : ""}">
-      ${!isOwn ? `<img src="${msg.avatar}" width="32" height="32" style="border-radius:50%">` : ""}
-      <div class="bubble" style="${isOwn ? "background:linear-gradient(145deg,#a770ef,#6c5ce7);" : ""}">
+    <div class="chat-row ${isOwn ? "own" : ""}">
+      <img src="${msg.avatar}" class="chat-avatar">
+      <div class="bubble ${isOwn ? "own-bubble" : ""}">
         <b>${msg.name}</b><br>${msg.text}
-        <div class="time">${msg.time}</div>
+        <span class="time">${msg.time}</span>
       </div>
-      ${isOwn ? `<img src="${msg.avatar}" width="32" height="32" style="border-radius:50%">` : ""}
     </div>
   `;
   chatBox.appendChild(msgDiv);
   chatBox.scrollTop = chatBox.scrollHeight;
-});
-
-// Realtime zobrazení online uživatelů
-onChildAdded(ref(db, "online"), (snapshot) => {
-  const u = snapshot.val();
-  if (!u) return;
-  const li = document.createElement("li");
-  li.id = "user-" + snapshot.key;
-  li.innerHTML = `<img src="${u.avatar}" width="20" height="20" style="border-radius:50%;margin-right:6px;"> ${u.name}`;
-  onlineList.appendChild(li);
-});
-
-onChildAdded(ref(db, "online"), (snap) => {
-  console.log("✅ Online uživatel připojen:", snap.key);
-});
-
-onChildAdded(ref(db, "online"), (snap) => {
-  console.log("🔴 Online uživatel odpojen:", snap.key);
-  const li = document.getElementById("user-" + snap.key);
-  if (li) li.remove();
 });
