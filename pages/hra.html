@@ -5,42 +5,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hra • Sušenka Web</title>
   <link rel="stylesheet" href="../style.css" />
-  <script type="module" src="../script.js" defer></script>
-  <script type="module" src="../chat.js" defer></script>
+  <script src="../script.js" defer></script>
+  <script src="../chat.js" defer></script>
+
   <style>
-    /* 🎨 Rozložení celé hry s postranními panely */
+    /* === Rozložení === */
     main.container {
       display: flex;
+      justify-content: center;
       gap: 20px;
       align-items: flex-start;
-      justify-content: center;
       flex-wrap: nowrap;
     }
 
-    /* 🕹️ Hra uprostřed */
     .game-card {
       flex: 2;
       min-width: 480px;
       text-align: center;
     }
 
-    /* 💬 Chat vpravo */
-    aside.chat-panel {
+    /* === Chat === */
+    .chat-panel {
       flex: 1;
       min-width: 300px;
-      max-width: 400px;
-      height: 650px;
+      max-width: 380px;
       display: flex;
       flex-direction: column;
+      height: 600px;
     }
 
-    .chat-box {
+    #chat-box {
       flex: 1;
       overflow-y: auto;
-      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255,255,255,0.06);
       border-radius: 12px;
       padding: 10px;
-      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      max-height: 400px;
+      scroll-behavior: smooth;
+    }
+
+    .msg {
+      margin: 6px 0;
+    }
+
+    .bubble {
+      background: linear-gradient(145deg, #6c5ce7, #a770ef);
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 10px;
+      color: #fff;
+      max-width: 90%;
+      word-wrap: break-word;
+    }
+
+    .time {
+      display: block;
+      font-size: 11px;
+      opacity: 0.7;
+      text-align: right;
     }
 
     .chat-input {
@@ -51,32 +74,33 @@
 
     .chat-input input {
       flex: 1;
-      border-radius: 8px;
       border: none;
+      border-radius: 8px;
       padding: 8px;
+      background: rgba(255,255,255,0.1);
+      color: white;
       outline: none;
     }
 
-    /* 🏆 Leaderboard vlevo */
-    aside.leaderboard {
+    /* === Leaderboard === */
+    .leaderboard {
       flex: 1;
       min-width: 280px;
-      max-width: 400px;
-      height: 650px;
-      padding: 10px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
+      max-width: 350px;
+      height: 600px;
       overflow-y: auto;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 10px;
     }
 
-    #leaderboard li {
-      background: rgba(255, 255, 255, 0.07);
-      margin: 6px 0;
-      padding: 6px 10px;
-      border-radius: 8px;
+    .leaderboard li {
       display: flex;
       justify-content: space-between;
-      font-size: 15px;
+      background: rgba(255,255,255,0.08);
+      margin: 5px 0;
+      padding: 6px 10px;
+      border-radius: 8px;
     }
   </style>
 </head>
@@ -84,7 +108,7 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar" />
+      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
       <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
     </div>
     <nav class="nav">
@@ -97,17 +121,16 @@
   </header>
 
   <main class="container">
-    <!-- 🏆 Leaderboard vlevo -->
+    <!-- 🏆 Žebříček -->
     <aside class="card leaderboard animate-pop">
       <h2>🏆 Žebříček</h2>
       <ul id="leaderboard"></ul>
     </aside>
 
-    <!-- 🎮 Herní část uprostřed -->
+    <!-- 🎮 Hra -->
     <section class="card game-card animate-pop">
-      <h2>🍪 Sušenka Hra – Nástroje</h2>
+      <h2>🍪 Sušenka Hra</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
-
       <div class="cookie-wrap">
         <img src="../images/susenka-logo.png" alt="cookie" id="cookie" class="cookie" />
       </div>
@@ -125,28 +148,26 @@
       </div>
 
       <div class="upgrade-section">
-        <h3>🎒 Tvůj inventář</h3>
+        <h3>🎒 Inventář</h3>
         <ul id="inventory" style="list-style:none;padding:0;color:var(--muted);"></ul>
       </div>
     </section>
 
-    <!-- 💬 Chat napravo -->
+    <!-- 💬 Chat -->
     <aside class="card chat-panel animate-pop">
       <h2>💬 Chat</h2>
-      <div id="chat-box" class="chat-box"></div>
+      <div id="chat-box"></div>
       <div class="chat-input">
-        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
+        <input type="text" id="chat-message" placeholder="Napiš zprávu...">
         <button id="send-btn" class="btn">📤</button>
       </div>
-
-      <h3 style="margin-top:16px;">🟢 Online</h3>
+      <h3 style="margin-top:10px;">🟢 Online</h3>
       <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
 
-  <!-- 🎵 Hudba na pozadí -->
   <audio id="bg-music" src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3" autoplay loop></audio>
 </body>
 </html>
