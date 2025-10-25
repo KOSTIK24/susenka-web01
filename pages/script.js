@@ -9,10 +9,11 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef123456"
 };
 
-// Firebase init
+// 🧠 Firebase inicializace (žádné getApps!)
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
+// Ulož skóre do Firebase
 function updateLeaderboardFirebase() {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const username = localStorage.getItem("currentUser");
@@ -22,7 +23,7 @@ function updateLeaderboardFirebase() {
   db.ref("leaderboard/" + username).set({ name: username, cookies: score });
 }
 
-// Poslouchání leaderboardu a zobrazení
+// Zobrazení leaderboardu
 const leaderboardEl = document.getElementById("leaderboard");
 if (leaderboardEl) {
   db.ref("leaderboard").on("value", (snapshot) => {
