@@ -9,6 +9,7 @@
   <script type="module" src="../chat.js" defer></script>
 </head>
 <body>
+  <!-- 🔝 Horní lišta -->
   <header class="topbar">
     <div class="brand">
       <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
@@ -23,8 +24,23 @@
     </nav>
   </header>
 
-  <main class="container" style="display:flex;gap:20px;flex-wrap:wrap;">
-    <section class="card game-card animate-pop" style="flex:2;">
+  <!-- 🔲 Hlavní část -->
+  <main class="container" style="display:flex;gap:20px;flex-wrap:wrap;justify-content:center;align-items:flex-start;">
+
+    <!-- 💬 CHAT vlevo -->
+    <aside class="card animate-pop" style="flex:1;min-width:260px;max-width:320px;">
+      <h2>💬 Chat</h2>
+      <div id="chat-box" class="chat-box"></div>
+      <div class="chat-input">
+        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
+        <button id="send-btn" class="btn">📤</button>
+      </div>
+      <h3 style="margin-top:16px;">🟢 Online</h3>
+      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
+    </aside>
+
+    <!-- 🍪 HRA uprostřed -->
+    <section class="card game-card animate-pop" style="flex:2;min-width:320px;text-align:center;">
       <h2>🍪 Sušenka Hra – Nástroje</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
 
@@ -45,21 +61,17 @@
       </div>
 
       <div class="upgrade-section">
-        <h3>🎒 Tvůj inventář</h3>
+        <h3>🎒 Inventář</h3>
         <ul id="inventory" style="list-style:none;padding:0;color:var(--muted);"></ul>
       </div>
     </section>
 
-    <aside class="card animate-pop" style="flex:1;min-width:280px;">
-      <h2>💬 Chat</h2>
-      <div id="chat-box" class="chat-box"></div>
-      <div class="chat-input">
-        <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
-        <button id="send-btn" class="btn">📤</button>
-      </div>
-      <h3 style="margin-top:16px;">🟢 Online</h3>
-      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
+    <!-- 🏆 LEADERBOARD vpravo -->
+    <aside class="card animate-pop" style="flex:1;min-width:260px;max-width:320px;">
+      <h2>🏆 Žebříček hráčů</h2>
+      <ul id="leaderboard" style="list-style:none;padding:0;color:var(--muted);margin:0;"></ul>
     </aside>
+
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
