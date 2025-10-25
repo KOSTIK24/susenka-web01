@@ -1,4 +1,4 @@
-/ ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA) ========== /
+/ ========== 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (LOGIN, REGISTRACE, HRA + ADMIN) ========== /
 
 console.log("✅ Sušenka Web – hlavní skript načten");
 
@@ -220,128 +220,75 @@ document.addEventListener("DOMContentLoaded", () => {
       countDisplay.textContent = count;
     }
   }
-});
-// 💎 ZOBRAZENÍ ADMIN PANELU (vedoucí nebo admin)
-const current = localStorage.getItem("currentUser");
-if (current) {
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const user = users[current];
 
-  console.log("🧠 Kontrola admin panelu:", current, user);
-
-  if (user && (user.role === "vedouci" || user.role === "admin" || user.email?.toLowerCase() === "susenky17@gmail.com")) {
-    const panel = document.getElementById("admin-panel");
-    if (panel) {
-      panel.style.display = "block";
-      console.log("✅ Admin panel zobrazen!");
+  // 💎 ADMIN PANEL – aktivace
+  const current = getCurrentUser();
+  if (current) {
+    const users = loadUsers();
+    const user = users[current];
+    if (user && (user.role === "vedouci" || user.role === "admin" || user.email === "susenky17@gmail.com")) {
+      const panel = document.getElementById("admin-panel");
+      if (panel) panel.style.display = "block";
     }
-  } else {
-    console.warn("❌ Uživateli není admin panel povolen.");
   }
-}
-// 💎 ZOBRAZENÍ ADMIN PANELU (vedoucí nebo admin)
-const current = localStorage.getItem("currentUser");
-if (current) {
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const user = users[current];
 
-  console.log("🧠 Kontrola admin panelu:", current, user);
+  // 💎 Admin funkce
+  window.addAdmin = function () {
+    const username = document.getElementById("admin-name").value.trim();
+    const users = loadUsers();
+    if (!users[username]) return alert("❌ Uživatel neexistuje!");
+    users[username].role = "admin";
+    saveUsers(users);
+    alert(`✅ ${username} byl povýšen na admina!`);
+    listAdmins();
+  };
 
-  if (user && (user.role === "vedouci" || user.role === "admin" || user.email?.toLowerCase() === "susenky17@gmail.com")) {
-    const panel = document.getElementById("admin-panel");
-    if (panel) {
-      panel.style.display = "block";
-      console.log("✅ Admin panel zobrazen!");
+  window.listAdmins = function () {
+    const list = document.getElementById("admin-list");
+    const users = loadUsers();
+    list.innerHTML = "";
+    for (const [name, u] of Object.entries(users)) {
+      if (u.role === "admin") {
+        const li = document.createElement("li");
+        li.textContent = `👑 ${name} (${u.email || "bez e-mailu"})`;
+        list.appendChild(li);
+      }
     }
-  } else {
-    console.warn("❌ Uživateli není admin panel povolen.");
-  }
-}
+    if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+  };
 
-// 💎 ZOBRAZENÍ ADMIN PANELU (vedoucí nebo admin)
-const current = localStorage.getItem("currentUser");
-if (current) {
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  const user = users[current];
+  window.giveCookies = function () {
+    alert("🍪 +1000 sušenek! (zatím jen testovací funkce)");
+  };
 
-  console.log("🧠 Kontrola admin panelu:", current, user);
-
-  if (user && (user.role === "vedouci" || user.role === "admin" || user.email?.toLowerCase() === "susenky17@gmail.com")) {
-    const panel = document.getElementById("admin-panel");
-    if (panel) {
-      panel.style.display = "block";
-      console.log("✅ Admin panel zobrazen!");
+  window.clearUsers = function () {
+    if (confirm("Opravdu chceš smazat všechny účty?")) {
+      localStorage.removeItem("users");
+      localStorage.removeItem("currentUser");
+      alert("🧹 Všechny účty byly smazány.");
+      location.reload();
     }
-  } else {
-    console.warn("❌ Uživateli není admin panel povolen.");
-  }
-}
+  };
 
-// 💎 Funkce pro admin panel
-window.addAdmin = function () {
-  const username = document.getElementById("admin-name").value.trim();
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  if (!users[username]) {
-    alert("❌ Uživatel neexistuje!");
-    return;
-  }
-  users[username].role = "admin";
-  localStorage.setItem("users", JSON.stringify(users));
-  alert(`✅ ${username} byl povýšen na admina!`);
-  listAdmins();
-};
-
-window.listAdmins = function () {
-  const list = document.getElementById("admin-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  list.innerHTML = "";
-  for (const [name, u] of Object.entries(users)) {
-    if (u.role === "admin") {
+  window.listUsers = function () {
+    const list = document.getElementById("user-list");
+    const users = loadUsers();
+    list.innerHTML = "";
+    if (!Object.keys(users).length) {
+      list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
+      return;
+    }
+    for (const [name, u] of Object.entries(users)) {
       const li = document.createElement("li");
-      li.textContent = `👑 ${name} (${u.email || "bez e-mailu"})`;
+      li.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
+          <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
+          <div>
+            <strong>${name}</strong><br>
+            <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
+          </div>
+        </div>`;
       list.appendChild(li);
     }
-  }
-  if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
-};
-
-window.giveCookies = function () {
-  let count = parseInt(localStorage.getItem("count")) || 0;
-  count += 1000;
-  localStorage.setItem("count", count);
-  alert("🍪 Přidáno 1000 sušenek!");
-};
-
-window.clearUsers = function () {
-  if (confirm("Opravdu chceš smazat všechny účty?")) {
-    localStorage.removeItem("users");
-    localStorage.removeItem("currentUser");
-    alert("🧹 Všechny účty byly smazány.");
-    location.reload();
-  }
-};
-
-window.listUsers = function () {
-  const list = document.getElementById("user-list");
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  list.innerHTML = "";
-
-  if (!Object.keys(users).length) {
-    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
-    return;
-  }
-
-  for (const [name, u] of Object.entries(users)) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
-        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32" style="border-radius:50%;object-fit:cover;">
-        <div>
-          <strong>${name}</strong><br>
-          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
-        </div>
-      </div>
-    `;
-    list.appendChild(li);
-  }
-};
+  };
+});
