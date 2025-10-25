@@ -7,72 +7,66 @@
   <link rel="stylesheet" href="../style.css">
   <script type="module" src="../script.js" defer></script>
   <script type="module" src="../chat.js" defer></script>
+
+  <!-- 🎵 Hudba na pozadí -->
+  <audio id="bg-music" autoplay loop>
+    <source src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3" type="audio/mpeg">
+  </audio>
+
   <style>
-    /* ===== 🧱 ROZLOŽENÍ TŘÍ PANELŮ ===== */
+    /* 🏆 Styl leaderboardu a chatu po stranách */
     main.container {
-      display: grid;
-      grid-template-columns: 1fr 2fr 1.3fr;
-      gap: 30px;
-      align-items: start;
-      justify-content: center;
-      margin: 40px auto;
-      max-width: 1400px;
-    }
-
-    @media (max-width: 1000px) {
-      main.container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-    }
-
-    /* 🏆 ŽEBŘÍČEK VLEVO */
-    .leaderboard-panel {
-      min-width: 260px;
-      max-width: 320px;
-      height: 400px;
-      overflow-y: auto;
-    }
-
-    #leaderboard li {
-      background: rgba(255,255,255,0.07);
-      border-radius: 10px;
-      padding: 8px 12px;
-      margin-bottom: 8px;
-      font-weight: 600;
-    }
-
-    /* 🎮 HRA UPROSTŘED */
-    .game-card {
-      text-align: center;
-      min-width: 400px;
-      max-width: 600px;
-    }
-
-    .cookie {
-      width: 200px;
-      height: 200px;
-    }
-
-    /* 💬 CHAT VPRAVO – širší, nižší */
-    .chat-panel {
-      min-width: 380px;
-      max-width: 420px;
-      height: 500px;
       display: flex;
-      flex-direction: column;
+      gap: 20px;
+      flex-wrap: nowrap;
       justify-content: space-between;
     }
 
-    .chat-box {
+    aside {
       flex: 1;
+      min-width: 280px;
+      max-width: 340px;
+    }
+
+    section.game-card {
+      flex: 2;
+    }
+
+    .leaderboard-panel {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(12px);
+      border-radius: 18px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+      max-height: 600px;
       overflow-y: auto;
-      padding: 14px;
+      padding: 10px;
+    }
+
+    .leaderboard-panel li {
+      background: rgba(255,255,255,0.07);
+      margin-bottom: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .leaderboard-panel li span {
+      color: #bbaaff;
+      font-weight: 700;
+    }
+
+    .chat-box {
+      height: 400px;
+      overflow-y: auto;
+      padding: 10px;
       background: rgba(255,255,255,0.05);
       border-radius: 14px;
       margin-bottom: 12px;
-      font-size: 15px;
     }
 
     .chat-input {
@@ -82,37 +76,17 @@
 
     .chat-input input {
       flex: 1;
-      padding: 10px 12px;
+      padding: 10px;
       border-radius: 12px;
       border: none;
+      outline: none;
       background: rgba(255,255,255,0.1);
       color: white;
     }
-
-    /* 🧱 Lepší card styl */
-    .card {
-      padding: 26px;
-      border-radius: 20px;
-      box-shadow: 0 10px 35px rgba(0,0,0,0.4);
-    }
-
-    .bubble {
-      background: linear-gradient(145deg, #a770ef, #6c5ce7);
-      border-radius: 14px;
-      padding: 8px 12px;
-      display: inline-block;
-      color: #fff;
-      margin-top: 4px;
-    }
-
-    .own .bubble {
-      background: linear-gradient(145deg, #8f7cff, #6c5ce7);
-    }
-
   </style>
 </head>
+
 <body>
-  <!-- 🔝 Horní lišta -->
   <header class="topbar">
     <div class="brand">
       <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
@@ -127,16 +101,14 @@
     </nav>
   </header>
 
-  <!-- 🧱 3 PANELY: LEADERBOARD | HRA | CHAT -->
   <main class="container">
-
-    <!-- 🏆 Žebříček vlevo -->
+    <!-- 🏆 Leaderboard vlevo -->
     <aside class="card leaderboard-panel animate-pop">
       <h2>🏆 Žebříček hráčů</h2>
-      <ul id="leaderboard" style="list-style:none;padding:0;color:var(--muted);margin:0;"></ul>
+      <ul id="leaderboard" style="list-style:none;padding:0;margin:0;"></ul>
     </aside>
 
-    <!-- 🍪 Hra uprostřed -->
+    <!-- 🎮 Hra uprostřed -->
     <section class="card game-card animate-pop">
       <h2>🍪 Sušenka Hra – Nástroje</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
@@ -158,27 +130,33 @@
       </div>
 
       <div class="upgrade-section">
-        <h3>🎒 Inventář</h3>
+        <h3>🎒 Tvůj inventář</h3>
         <ul id="inventory" style="list-style:none;padding:0;color:var(--muted);"></ul>
       </div>
     </section>
 
     <!-- 💬 Chat vpravo -->
-    <aside class="card chat-panel animate-pop">
+    <aside class="card animate-pop">
       <h2>💬 Chat</h2>
       <div id="chat-box" class="chat-box"></div>
-
       <div class="chat-input">
         <input type="text" id="chat-message" placeholder="Napiš zprávu..." />
         <button id="send-btn" class="btn">📤</button>
       </div>
-
-      <h3 style="margin-top:10px;">🟢 Online</h3>
-      <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
-
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
+
+  <script>
+    // 🎵 Spuštění hudby po kliknutí (kvůli autoplay blokaci)
+    document.addEventListener("click", () => {
+      const music = document.getElementById("bg-music");
+      if (music && music.paused) {
+        music.volume = 0.25;
+        music.play().catch(() => {});
+      }
+    }, { once: true });
+  </script>
 </body>
 </html>
