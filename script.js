@@ -292,3 +292,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 });
+import { showAllUsers } from "./users.js";
+
+window.listUsers = function() {
+  showAllUsers();
+};
+
