@@ -221,3 +221,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 });
+// 💎 ZOBRAZENÍ ADMIN PANELU (vedoucí nebo admin)
+const current = localStorage.getItem("currentUser");
+if (current) {
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  const user = users[current];
+
+  console.log("🧠 Kontrola admin panelu:", current, user);
+
+  if (user && (user.role === "vedouci" || user.role === "admin" || user.email?.toLowerCase() === "susenky17@gmail.com")) {
+    const panel = document.getElementById("admin-panel");
+    if (panel) {
+      panel.style.display = "block";
+      console.log("✅ Admin panel zobrazen!");
+    }
+  } else {
+    console.warn("❌ Uživateli není admin panel povolen.");
+  }
+}
+
