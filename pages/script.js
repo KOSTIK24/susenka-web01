@@ -1,5 +1,4 @@
 // ===== 🏆 Firebase Leaderboard =====
-
 const firebaseConfig = {
   apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
   authDomain: "susenka-web-chat.firebaseapp.com",
@@ -10,7 +9,7 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef123456"
 };
 
-// Firebase inicializace
+// Firebase init
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -20,14 +19,13 @@ function updateLeaderboardFirebase() {
   if (!username || !users[username]) return;
 
   const score = users[username].cookies || 0;
-  set(ref(db, "leaderboard/" + username), { name: username, cookies: score });
-}db.ref("leaderboard/" + username).set({ name: username, cookies: score });
-
+  db.ref("leaderboard/" + username).set({ name: username, cookies: score });
+}
 
 // Poslouchání leaderboardu a zobrazení
 const leaderboardEl = document.getElementById("leaderboard");
 if (leaderboardEl) {
-  onValue(ref(db, "leaderboard"), (snapshot) => {
+  db.ref("leaderboard").on("value", (snapshot) => {
     const data = [];
     snapshot.forEach((child) => data.push(child.val()));
     data.sort((a, b) => b.cookies - a.cookies);
@@ -40,6 +38,7 @@ if (leaderboardEl) {
     });
   });
 }
+
 
 // 💎 ADMIN PANEL FUNKCE
 window.addAdmin = function () {
