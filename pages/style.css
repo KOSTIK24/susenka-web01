@@ -1,0 +1,272 @@
+:root{
+  --grad-a:#6c5ce7;
+  --grad-b:#a770ef;
+  --surface: rgba(255,255,255,0.06);
+  --surface-2: rgba(0,0,0,0.25);
+  --text:#fff;
+  --muted: #d9d6ff;
+  --shadow: 0 12px 30px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.03);
+  --radius: 16px;
+  --blur: blur(8px);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color: var(--text);
+  background: radial-gradient(1200px 800px at 80% 20%, rgba(167,112,239,.25), transparent 60%),
+              radial-gradient(1000px 700px at 10% 10%, rgba(108,92,231,.25), transparent 55%),
+              linear-gradient(160deg, #0b0620 0%, #140a2e 60%, #1b103d 100%);
+  overflow-x:hidden;
+}
+
+/* 🔝 Horní lišta */
+.topbar{
+  position:sticky; top:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:10px 16px;
+  background: linear-gradient(180deg, rgba(0,0,0,.5), rgba(0,0,0,.2));
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.brand{display:flex; align-items:center; gap:10px}
+.brand-logo{width:28px; height:28px; border-radius:6px; object-fit:cover}
+.brand-name{font-weight:600; letter-spacing:.2px}
+.nav a{
+  color:var(--muted); text-decoration:none; font-weight:600;
+  margin:0 6px; padding:6px 10px; border-radius:12px;
+  background: rgba(255,255,255,0.06);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.05);
+  transition: transform .15s ease, background .2s ease, box-shadow .2s ease;
+}
+.nav a:hover{
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.12);
+  box-shadow: var(--shadow);
+}
+
+/* 📦 Obsah */
+.container{
+  max-width:980px;
+  margin: 28px auto 80px;
+  padding: 0 16px;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
+.hero{text-align:center;}
+.hero h1{margin:6px 0 10px; font-size:28px}
+.hero p{margin:0 0 16px; color:var(--muted)}
+
+/* 🧩 Grid sekce */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:16px;
+}
+@media (max-width:900px){
+  .grid{ grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width:560px){
+  .grid{ grid-template-columns: 1fr; }
+}
+
+.floaty{
+  position:relative;
+  transition: transform .25s ease, box-shadow .25s ease;
+  animation: float 6s ease-in-out infinite;
+}
+.floaty:hover{
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,.45);
+}
+
+/* 🔘 Tlačítka */
+.btn{
+  display:inline-block;
+  padding:10px 16px;
+  border-radius:14px;
+  background: radial-gradient(120% 120% at 30% 30%, #b9a6ff 0%, #8f7cff 40%, #6c5ce7 100%);
+  color:#fff; text-decoration:none; font-weight:700;
+  border:none; cursor:pointer;
+  box-shadow: 0 10px 25px rgba(108,92,231,.45);
+  transition: transform .15s ease, filter .2s ease, box-shadow .2s ease;
+}
+.btn:hover{
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 14px 35px rgba(108,92,231,.55);
+}
+.btn.primary{
+  background: radial-gradient(120% 120% at 30% 30%, #d7c7ff 0%, #a996ff 40%, #a770ef 100%);
+}
+
+/* ✅ FAQ karta – zarovnání */
+.grid article:nth-child(4) {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 170px;
+  padding-bottom: 20px;
+}
+.grid article:nth-child(4) p { flex-grow: 1; }
+.grid article:nth-child(4) .btn {
+  margin-top: auto;
+  align-self: flex-start;
+}
+
+/* 🧍 Tým */
+.team{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  padding:0;
+  list-style:none;
+}
+.pill{
+  padding:8px 14px;
+  background: rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:999px;
+}
+
+/* 🍪 Hra */
+.game-card{text-align:center;}
+.counter{font-size:22px; margin:6px 0 16px;}
+.cookie-wrap{display:flex; justify-content:center; align-items:center; margin:10px 0 16px;}
+.cookie{
+  width:170px; height:170px;
+  border-radius:24px;
+  object-fit:cover;
+  box-shadow: 0 12px 35px rgba(0,0,0,.45);
+  transition: transform .08s ease, filter .2s ease;
+}
+.cookie:active{transform: scale(0.94) rotate(-2deg);}
+.controls{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;}
+.hint{color: var(--muted);}
+
+/* 🍪 Sekce upgradu */
+.upgrade-section {
+  margin-top: 20px;
+  text-align: center;
+}
+.upgrade-section p {
+  color: var(--muted);
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* 🔄 Animace */
+@keyframes pop { from{transform:scale(.96); opacity:0} to{transform:scale(1); opacity:1} }
+.animate-pop{ animation: pop .35s ease forwards; }
+
+@keyframes float {
+  0%{transform: translateY(0);}
+  50%{transform: translateY(-4px);}
+  100%{transform: translateY(0);}
+}
+
+/* 🧾 FAQ */
+.faq-item{ margin:8px 0; }
+.faq-item summary{ cursor:pointer; font-weight:700; }
+.faq-item p{ color:var(--muted); }
+
+/* 📜 Patička */
+.footer{
+  text-align:center;
+  color: var(--muted);
+  padding: 24px;
+  border-top: 1px solid rgba(255,255,255,.06);
+  background: linear-gradient(180deg, rgba(0,0,0,.2), rgba(0,0,0,.4));
+}
+
+/* ===== Auth / topbar avatar styles ===== */
+#topbar-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,.06);
+}
+.topbar .nav a#logout-link {
+  color: var(--muted);
+  margin-left:8px;
+}
+
+/* 👤 Profilovky a přihlášení */
+.avatar-choice {
+  width:56px;
+  height:56px;
+  border-radius:12px;
+  object-fit:cover;
+  transition: box-shadow .15s ease, transform .15s ease;
+}
+.avatar-choice:hover {
+  box-shadow: 0 8px 24px rgba(108,92,231,.35);
+  transform: translateY(-2px);
+}
+/* 💬 Chat styl */
+.chat-box {
+  height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.msg {
+  margin-bottom: 10px;
+}
+
+.bubble {
+  background: linear-gradient(145deg, #6c5ce7, #a770ef);
+  padding: 10px 14px;
+  border-radius: 14px;
+  color: #fff;
+  display: inline-block;
+  max-width: 75%;
+  animation: pop 0.3s ease;
+}
+
+.time {
+  display: block;
+  font-size: 11px;
+  color: rgba(255,255,255,.7);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.chat-input {
+  display: flex;
+  gap: 10px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+/* 🧱 Fix navigace – aby šla klikat i na mobilu */
+.topbar {
+  z-index: 9999;
+}
+.nav a {
+  position: relative;
+  z-index: 2;
+}
