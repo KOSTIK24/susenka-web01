@@ -1,114 +1,99 @@
-// ========== 💬 SUŠENKA CHAT (bez duplicate-app chyby) ========== //
-import {
-  initializeApp,
-  getApps,
-  getApp
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-
+// ===== 💬 Sušenka Chat (Firebase Realtime Database) =====
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import {
   getDatabase,
   ref,
   push,
   onChildAdded,
-  set,
+  serverTimestamp,
   onDisconnect,
-  remove,
-  onValue
-} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  set
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
-// 🔥 Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
+  apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
   authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.firebaseio.com",
+  databaseURL: "https://susenka-web-chat-default-rtdb.firebaseio.com/",
   projectId: "susenka-web-chat",
   storageBucket: "susenka-web-chat.appspot.com",
-  messagingSenderId: "625704029177",
-  appId: "1:625704029177:web:d8510c07f534df48134b28",
-  measurementId: "G-012LNBPFGJ"
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef123456"
 };
 
-// ✅ Zabráníme chybě “Firebase App '[DEFAULT]' already exists”
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+// ⚙️ Inicializace (zabraňuje duplicitnímu app erroru)
+let app;
+try {
+  app = initializeApp(firebaseConfig);
+} catch {
+  app = firebase.app();
+}
 const db = getDatabase(app);
 
-// 📦 DOM prvky
 const chatBox = document.getElementById("chat-box");
+const msgInput = document.getElementById("chat-message");
 const sendBtn = document.getElementById("send-btn");
-const input = document.getElementById("chat-message");
 const onlineList = document.getElementById("online-users");
 
-// 🔐 Data o uživateli
-const users = JSON.parse(localStorage.getItem("users") || "{}");
-const username = localStorage.getItem("currentUser") || "Anonym";
-const avatar = (users[username]?.avatar) || "../images/susenka-logo.png";
+const currentUser = localStorage.getItem("currentUser") || "Neznámý";
 
-// === 🟢 ONLINE STATUS ===
-const userRef = ref(db, "online/" + username);
+// ===== ⚔️ Cenzura slov =====
+const badWords = [
+  "kokot","kunda","kurva","píča","prdel","porno","sex","penis",
+  "pica","kundo","prasarna","shit","fuck","dick","cock","bitch"
+];
+function censor(text) {
+  let result = text;
+  badWords.forEach(w => {
+    const regex = new RegExp(`\\b${w}\\b`, "gi");
+    result = result.replace(regex, "❌");
+  });
+  return result;
+}
+
+// ===== 💬 Odeslání zprávy =====
+if (sendBtn) {
+  sendBtn.addEventListener("click", () => {
+    const text = msgInput.value.trim();
+    if (!text) return;
+
+    const message = {
+      user: currentUser,
+      text: censor(text),
+      time: new Date().toLocaleTimeString(),
+      ts: serverTimestamp()
+    };
+
+    push(ref(db, "messages"), message);
+    msgInput.value = "";
+  });
+}
+
+// ===== 📡 Příjem zpráv =====
+onChildAdded(ref(db, "messages"), (snapshot) => {
+  const data = snapshot.val();
+  const div = document.createElement("div");
+  div.classList.add("msg");
+  div.innerHTML = `<div class="bubble"><b>${data.user}</b>: ${data.text}</div><div class="time">${data.time}</div>`;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+// ===== 🟢 Online systém =====
+const userRef = ref(db, "online/" + currentUser);
 set(userRef, true);
 onDisconnect(userRef).remove();
 
-// 🧍 Aktualizace online seznamu
-onValue(ref(db, "online"), (snapshot) => {
-  const data = snapshot.val() || {};
-  onlineList.innerHTML = "";
-  Object.keys(data).forEach((name) => {
-    const li = document.createElement("li");
-    li.textContent = "🟢 " + name;
-    onlineList.appendChild(li);
-  });
+onChildAdded(ref(db, "online"), (snap) => {
+  const name = snap.key;
+  const li = document.createElement("li");
+  li.id = "user-" + name;
+  li.textContent = name;
+  onlineList.appendChild(li);
 });
 
-// === 💬 ODESÍLÁNÍ ZPRÁV ===
-if (sendBtn && input) {
-  sendBtn.addEventListener("click", sendMessage);
-  input.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
-}
-
-function sendMessage() {
-  let text = input.value.trim();
-  if (!text) return;
-
-  // 🧹 Cenzura sprostých slov (včetně variant)
-  const badWords = [
-    "kokot","kokoti","kokotem","kokote","kokotina",
-    "kurva","kurvy","kurvo","kurven","kurvám","kurvách",
-    "kunda","kundy","kundou","kundám","kundách",
-    "porno","pornem","pornu","pornos","porny",
-    "sex","sexu","sexy","sexem","sexuální",
-    "penis","penisy","penisem","penisu",
-    "píča","píči","píčo","píčou","píčovina","píčoviny","pica","picovina",
-    "prdel","prdele","prdelí","prdelka","prdelky","prdelce"
-  ];
-  const regex = new RegExp(`\\b(${badWords.join("|")})\\b`, "gi");
-  text = text.replace(regex, (match) => "★".repeat(match.length));
-
-  push(ref(db, "messages"), {
-    name: username,
-    avatar,
-    text,
-    time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  });
-
-  input.value = "";
-}
-
-// === 💬 ZOBRAZENÍ ZPRÁV ===
-onChildAdded(ref(db, "messages"), (snapshot) => {
-  const msg = snapshot.val();
-  const isOwn = msg.name === username;
-
-  const msgDiv = document.createElement("div");
-  msgDiv.className = "msg";
-  msgDiv.innerHTML = `
-    <div class="chat-row ${isOwn ? "own" : ""}">
-      <img src="${msg.avatar}" class="chat-avatar" width="28" height="28" style="border-radius:50%;object-fit:cover;">
-      <div class="bubble ${isOwn ? "own-bubble" : ""}">
-        <b>${msg.name}</b><br>${msg.text}
-        <span class="time">${msg.time}</span>
-      </div>
-    </div>
-  `;
-  chatBox.appendChild(msgDiv);
-  chatBox.scrollTop = chatBox.scrollHeight;
+import { onChildRemoved } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+onChildRemoved(ref(db, "online"), (snap) => {
+  const name = snap.key;
+  const el = document.getElementById("user-" + name);
+  if (el) el.remove();
 });
