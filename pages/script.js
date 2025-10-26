@@ -8,63 +8,12 @@ const setCurrentUser = (n) => localStorage.setItem("currentUser", n);
 const getCurrentUser = () => localStorage.getItem("currentUser");
 const hashPass = (s) => btoa(unescape(encodeURIComponent(s)));
 
-// === LOGIN A REGISTRACE ===
-document.addEventListener("DOMContentLoaded", () => {
-  const btnLogin = document.getElementById("btn-login");
-  const btnRegister = document.getElementById("btn-register");
-
-  if (btnLogin) {
-    btnLogin.onclick = () => {
-      const name = document.getElementById("login-name").value.trim();
-      const pass = document.getElementById("login-pass").value.trim();
-      const users = loadUsers();
-      if (!users[name]) return alert("❌ Uživatel neexistuje!");
-      if (users[name].pass !== hashPass(pass)) return alert("❌ Špatné heslo!");
-      setCurrentUser(name);
-      alert("✅ Přihlášeno");
-      location.href = "../index.html";
-    };
-  }
-
-  if (btnRegister) {
-    btnRegister.onclick = () => {
-      const name = document.getElementById("reg-name").value.trim();
-      const email = document.getElementById("reg-email").value.trim();
-      const pass = document.getElementById("reg-pass").value.trim();
-      const avatar = document.getElementById("reg-avatar").value.trim();
-      if (!name || !email || !pass) return alert("Vyplň vše!");
-
-      const users = loadUsers();
-      if (users[name]) return alert("Uživatel už existuje!");
-
-      const isLeader = email === "susenky17@gmail.com";
-      users[name] = {
-        pass: hashPass(pass),
-        email,
-        avatar: avatar || "images/susenka-logo.png",
-        role: isLeader ? "vedouci" : "clen",
-        cookies: 0,
-        inventory: []
-      };
-      saveUsers(users);
-      setCurrentUser(name);
-      alert(isLeader ? "💎 Vítej, Vedoucí!" : "✅ Registrace hotová!");
-      location.href = "../index.html";
-    };
-  }
-
-  initGame();
-});
+document.addEventListener("DOMContentLoaded", () => initGame());
 
 // === HRA ===
 function initGame() {
   const cookie = document.getElementById("cookie");
   const countDisplay = document.getElementById("count");
-  const saveBtn = document.getElementById("save-btn");
-  const resetBtn = document.getElementById("reset-btn");
-  const shop = document.getElementById("shop");
-  const inventoryList = document.getElementById("inventory");
-
   if (!cookie || !countDisplay) return;
 
   const tools = [
@@ -76,39 +25,44 @@ function initGame() {
 
   const username = getCurrentUser();
   const users = loadUsers();
-  const user = users[username] || { cookies: 0, inventory: [] };
-  let count = parseInt(user.cookies || 0);
-  let inventory = user.inventory || [];
+  if (!users[username]) {
+    users[username] = { cookies: 0, inventory: [], role: "clen" };
+    saveUsers(users);
+  }
 
-  updateDisplay();
-  renderShop();
-  renderInventory();
+  let count = users[username].cookies || 0;
+  let inventory = users[username].inventory || [];
 
-  cookie.addEventListener("click", () => {
-    count += 1 + getBonus();
-    animateCookie();
+  const shop = document.getElementById("shop");
+  const inventoryList = document.getElementById("inventory");
+
+  function updateDisplay() {
+    countDisplay.textContent = count;
+  }
+
+  function getBonus() {
+    return inventory.reduce((s, id) => {
+      const t = tools.find(x => x.id === id);
+      return s + (t ? t.bonus : 0);
+    }, 0);
+  }
+
+  function saveGame() {
+    users[username].cookies = count;
+    users[username].inventory = inventory;
+    saveUsers(users);
+    updateLeaderboardFirebase();
+  }
+
+  function buyTool(tool) {
+    if (inventory.includes(tool.id)) return;
+    if (count < tool.cost) return alert("❌ Máš málo sušenek!");
+    count -= tool.cost;
+    inventory.push(tool.id);
+    saveGame();
     updateDisplay();
-    saveGame();
-  });
-
-  saveBtn?.addEventListener("click", () => {
-    saveGame();
-    alert("💾 Uloženo!");
-  });
-
-  resetBtn?.addEventListener("click", () => {
-    if (confirm("Resetovat hru?")) {
-      count = 0;
-      inventory = [];
-      saveGame();
-      updateDisplay();
-      renderInventory();
-    }
-  });
-
-  function animateCookie() {
-    cookie.style.transform = "scale(0.9)";
-    setTimeout(() => (cookie.style.transform = ""), 100);
+    renderInventory();
+    renderShop();
   }
 
   function renderShop() {
@@ -138,34 +92,17 @@ function initGame() {
     });
   }
 
-  function buyTool(tool) {
-    if (inventory.includes(tool.id)) return;
-    if (count < tool.cost) return alert("❌ Máš málo sušenek!");
-    count -= tool.cost;
-    inventory.push(tool.id);
-    saveGame();
+  cookie.addEventListener("click", () => {
+    count += 1 + getBonus();
+    cookie.style.transform = "scale(0.9)";
+    setTimeout(() => (cookie.style.transform = ""), 100);
     updateDisplay();
-    renderInventory();
-    renderShop();
-  }
+    saveGame();
+  });
 
-  function getBonus() {
-    return inventory.reduce((s, id) => {
-      const t = tools.find((x) => x.id === id);
-      return s + (t?.bonus || 0);
-    }, 0);
-  }
-
-  function updateDisplay() {
-    countDisplay.textContent = count;
-  }
-
-  function saveGame() {
-    users[username].cookies = count;
-    users[username].inventory = inventory;
-    saveUsers(users);
-    updateLeaderboardFirebase();
-  }
+  updateDisplay();
+  renderShop();
+  renderInventory();
 }
 
 // ===== 🏆 Firebase Leaderboard =====
@@ -179,7 +116,7 @@ const firebaseConfig = {
   appId: "1:1234567890:web:abcdef123456"
 };
 
-// 🧠 Firebase inicializace (žádné getApps!)
+// 🧠 Firebase inicializace
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
@@ -188,7 +125,6 @@ function updateLeaderboardFirebase() {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const username = localStorage.getItem("currentUser");
   if (!username || !users[username]) return;
-
   const score = users[username].cookies || 0;
   db.ref("leaderboard/" + username).set({ name: username, cookies: score });
 }
@@ -214,11 +150,9 @@ if (leaderboardEl) {
 window.addAdmin = function () {
   const username = document.getElementById("admin-name").value.trim();
   const users = JSON.parse(localStorage.getItem("users") || "{}");
-
   if (!users[username]) return alert("❌ Uživatel neexistuje!");
   users[username].role = "admin";
   localStorage.setItem("users", JSON.stringify(users));
-
   alert(`✅ ${username} byl povýšen na admina!`);
   window.listAdmins();
 };
@@ -227,7 +161,6 @@ window.listAdmins = function () {
   const list = document.getElementById("admin-list");
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   list.innerHTML = "";
-
   for (const [name, u] of Object.entries(users)) {
     if (u.role === "admin") {
       const li = document.createElement("li");
@@ -235,6 +168,5 @@ window.listAdmins = function () {
       list.appendChild(li);
     }
   }
-
   if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
 };
