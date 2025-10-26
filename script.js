@@ -8,41 +8,33 @@ const setCurrentUser = (n) => localStorage.setItem("currentUser", n);
 const getCurrentUser = () => localStorage.getItem("currentUser");
 const hashPass = (s) => btoa(unescape(encodeURIComponent(s)));
 
-// === Firebase inicializace (musí být úplně nahoře) ===
+// === Firebase inicializace ===
 let db = null;
 
 function initFirebase() {
-  try {
-    const firebaseConfig = {
-      apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
-      authDomain: "susenka-web-chat.firebaseapp.com",
-      databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "susenka-web-chat",
-      storageBucket: "susenka-web-chat.appspot.com",
-      messagingSenderId: "1234567890",
-      appId: "1:1234567890:web:abcdef123456"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
+    authDomain: "susenka-web-chat.firebaseapp.com",
+    databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "susenka-web-chat",
+    storageBucket: "susenka-web-chat.appspot.com",
+    messagingSenderId: "1234567890",
+    appId: "1:1234567890:web:abcdef123456"
+  };
 
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-      console.log("🔥 Firebase inicializováno");
-    }
-
-    db = firebase.database();
-    console.log("✅ Připojeno k Firebase Database");
-
-    // Leaderboard spustíme až po inicializaci Firebase
-    initLeaderboard();
-
-  } catch (err) {
-    console.error("❌ Firebase nelze inicializovat:", err);
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+    console.log("🔥 Firebase inicializováno");
   }
+  db = firebase.database();
+  console.log("✅ Připojeno k Firebase");
 }
 
-// === Po načtení stránky inicializuj Firebase i hru ===
+// === Po načtení stránky ===
 document.addEventListener("DOMContentLoaded", () => {
   initFirebase();
   initGame();
+  initLeaderboard();
 });
 
 // === HRA ===
@@ -86,7 +78,7 @@ function initGame() {
     users[username].cookies = count;
     users[username].inventory = inventory;
     saveUsers(users);
-    updateLeaderboardFirebase(); // ✅ Ukládá i do Firebase
+    updateLeaderboardFirebase();
   }
 
   function buyTool(tool) {
@@ -140,57 +132,19 @@ function initGame() {
   renderInventory();
 }
 
-// ===== 🏆 Firebase Leaderboard =====
-const firebaseConfig = {
-  apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
-  authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app", // ✅ správný region
-  projectId: "susenka-web-chat",
-  storageBucket: "susenka-web-chat.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
-};
-
-// 🧠 Firebase inicializace
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
-
-// 🔍 Debug připojení
-firebase.database().ref(".info/connected").on("value", (snap) => {
-  if (snap.val() === true) {
-    console.log("✅ Připojeno k Firebase Realtime Database");
-  } else {
-    console.warn("⚠️ Nepřipojeno k Firebase!");
-  }
-});
-
-// 💾 Ulož skóre do Firebase
+// === 🏆 LEADERBOARD (Firebase) ===
 function updateLeaderboardFirebase() {
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
   const username = localStorage.getItem("currentUser");
-  if (!username || !users[username]) {
-    console.warn("⚠️ Nelze odeslat do Firebase – žádný uživatel přihlášen!");
-    return;
-  }
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  if (!username || !users[username] || !db) return;
 
   const score = users[username].cookies || 0;
-  console.log("🔥 Pokus o zápis do Firebase:", username, score);
-
-  db.ref("leaderboard/" + username)
-    .set({ name: username, cookies: score })
-    .then(() => console.log("✅ Úspěšně uloženo do Firebase!"))
-    .catch((err) => console.error("❌ Chyba při zápisu do Firebase:", err));
+  db.ref("leaderboard/" + username).set({ name: username, cookies: score });
 }
 
-// 🏁 Načti leaderboard po načtení stránky
 function initLeaderboard() {
   const leaderboardEl = document.getElementById("leaderboard");
-  if (!leaderboardEl) {
-    console.warn("⚠️ Element #leaderboard nebyl nalezen");
-    return;
-  }
+  if (!leaderboardEl || !db) return;
 
   db.ref("leaderboard").on("value", (snapshot) => {
     const data = [];
@@ -212,59 +166,48 @@ function initLeaderboard() {
   });
 }
 
-// 💎 ===== ADMIN PANEL FUNKCE (bez zásahu do leaderboardu) =====
-window.listAdmins = function () {
-  const list = document.getElementById("admin-list");
-  if (!list) return;
+// === 💎 ADMIN PANEL (Firebase sync) ===
+window.addAdmin = function () {
+  const username = document.getElementById("admin-name")?.value?.trim();
+  if (!username) return alert("⚠️ Zadej jméno uživatele!");
 
-  // 🔥 Načti ze vzdálené DB místo localStorage
-  if (window.firebase && firebase.database) {
-    const db = firebase.database();
-    db.ref("admins").on("value", (snapshot) => {
-      list.innerHTML = "";
-      if (!snapshot.exists()) {
-        list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
-        return;
-      }
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  if (!users[username]) return alert("❌ Uživatel neexistuje!");
 
-      snapshot.forEach((child) => {
-        const a = child.val();
-        const li = document.createElement("li");
-        li.textContent = `👑 ${a.name} (${a.email || "bez e-mailu"})`;
-        list.appendChild(li);
-      });
+  users[username].role = "admin";
+  localStorage.setItem("users", JSON.stringify(users));
+
+  if (db) {
+    db.ref("admins/" + username).set({
+      name: username,
+      email: users[username].email || "",
+      role: "admin"
     });
-  } else {
-    list.innerHTML = "<li>❌ Firebase není připojen.</li>";
   }
+
+  alert(`✅ ${username} byl povýšen na admina!`);
+  if (typeof window.listAdmins === "function") window.listAdmins();
 };
 
 window.listAdmins = function () {
   const list = document.getElementById("admin-list");
-  if (!list) return;
+  if (!list || !db) return;
 
-  // 🔥 Načti ze vzdálené DB místo localStorage
-  if (window.firebase && firebase.database) {
-    const db = firebase.database();
-    db.ref("admins").on("value", (snapshot) => {
-      list.innerHTML = "";
-      if (!snapshot.exists()) {
-        list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
-        return;
-      }
+  db.ref("admins").on("value", (snapshot) => {
+    list.innerHTML = "";
+    if (!snapshot.exists()) {
+      list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+      return;
+    }
 
-      snapshot.forEach((child) => {
-        const a = child.val();
-        const li = document.createElement("li");
-        li.textContent = `👑 ${a.name} (${a.email || "bez e-mailu"})`;
-        list.appendChild(li);
-      });
+    snapshot.forEach((child) => {
+      const a = child.val();
+      const li = document.createElement("li");
+      li.textContent = `👑 ${a.name} (${a.email || "bez e-mailu"})`;
+      list.appendChild(li);
     });
-  } else {
-    list.innerHTML = "<li>❌ Firebase není připojen.</li>";
-  }
+  });
 };
-
 
 window.listUsers = function () {
   const list = document.getElementById("user-list");
