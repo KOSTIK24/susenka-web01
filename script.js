@@ -243,19 +243,28 @@ window.listAdmins = function () {
   const list = document.getElementById("admin-list");
   if (!list) return;
 
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  list.innerHTML = "";
+  // 🔥 Načti ze vzdálené DB místo localStorage
+  if (window.firebase && firebase.database) {
+    const db = firebase.database();
+    db.ref("admins").on("value", (snapshot) => {
+      list.innerHTML = "";
+      if (!snapshot.exists()) {
+        list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+        return;
+      }
 
-  for (const [name, u] of Object.entries(users)) {
-    if (u.role === "admin") {
-      const li = document.createElement("li");
-      li.textContent = `👑 ${name} (${u.email || "bez e-mailu"})`;
-      list.appendChild(li);
-    }
+      snapshot.forEach((child) => {
+        const a = child.val();
+        const li = document.createElement("li");
+        li.textContent = `👑 ${a.name} (${a.email || "bez e-mailu"})`;
+        list.appendChild(li);
+      });
+    });
+  } else {
+    list.innerHTML = "<li>❌ Firebase není připojen.</li>";
   }
-
-  if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
 };
+
 
 window.listUsers = function () {
   const list = document.getElementById("user-list");
