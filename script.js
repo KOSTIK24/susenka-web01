@@ -8,9 +8,41 @@ const setCurrentUser = (n) => localStorage.setItem("currentUser", n);
 const getCurrentUser = () => localStorage.getItem("currentUser");
 const hashPass = (s) => btoa(unescape(encodeURIComponent(s)));
 
+// === Firebase inicializace (musí být úplně nahoře) ===
+let db = null;
+
+function initFirebase() {
+  try {
+    const firebaseConfig = {
+      apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
+      authDomain: "susenka-web-chat.firebaseapp.com",
+      databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "susenka-web-chat",
+      storageBucket: "susenka-web-chat.appspot.com",
+      messagingSenderId: "1234567890",
+      appId: "1:1234567890:web:abcdef123456"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log("🔥 Firebase inicializováno");
+    }
+
+    db = firebase.database();
+    console.log("✅ Připojeno k Firebase Database");
+
+    // Leaderboard spustíme až po inicializaci Firebase
+    initLeaderboard();
+
+  } catch (err) {
+    console.error("❌ Firebase nelze inicializovat:", err);
+  }
+}
+
+// === Po načtení stránky inicializuj Firebase i hru ===
 document.addEventListener("DOMContentLoaded", () => {
+  initFirebase();
   initGame();
-  initLeaderboard(); // ✅ Přidáno
 });
 
 // === HRA ===
