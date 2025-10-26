@@ -180,21 +180,28 @@ function initLeaderboard() {
   });
 }
 
-// 💎 ADMIN PANEL FUNKCE
+// 💎 ===== ADMIN PANEL FUNKCE (bez zásahu do leaderboardu) =====
 window.addAdmin = function () {
-  const username = document.getElementById("admin-name").value.trim();
+  const username = document.getElementById("admin-name")?.value?.trim();
+  if (!username) return alert("⚠️ Zadej jméno uživatele!");
+
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   if (!users[username]) return alert("❌ Uživatel neexistuje!");
+
   users[username].role = "admin";
   localStorage.setItem("users", JSON.stringify(users));
+
   alert(`✅ ${username} byl povýšen na admina!`);
-  window.listAdmins();
+  if (typeof window.listAdmins === "function") window.listAdmins();
 };
 
 window.listAdmins = function () {
   const list = document.getElementById("admin-list");
+  if (!list) return;
+
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   list.innerHTML = "";
+
   for (const [name, u] of Object.entries(users)) {
     if (u.role === "admin") {
       const li = document.createElement("li");
@@ -202,5 +209,34 @@ window.listAdmins = function () {
       list.appendChild(li);
     }
   }
+
   if (!list.innerHTML) list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+};
+
+window.listUsers = function () {
+  const list = document.getElementById("user-list");
+  if (!list) return;
+
+  const users = JSON.parse(localStorage.getItem("users") || "{}");
+  list.innerHTML = "";
+
+  if (!Object.keys(users).length) {
+    list.innerHTML = "<li>Žádní uživatelé nejsou registrovaní.</li>";
+    return;
+  }
+
+  for (const [name, u] of Object.entries(users)) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;
+                  background:rgba(255,255,255,.05);padding:6px 10px;border-radius:10px;">
+        <img src="${u.avatar || 'images/susenka-logo.png'}" width="32" height="32"
+             style="border-radius:50%;object-fit:cover;">
+        <div>
+          <strong>${name}</strong><br>
+          <span style="font-size:13px;color:#ccc;">${u.email || "bez e-mailu"} • ${u.role || "člen"}</span>
+        </div>
+      </div>`;
+    list.appendChild(li);
+  }
 };
