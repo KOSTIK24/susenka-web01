@@ -213,18 +213,30 @@ function initLeaderboard() {
 }
 
 // 💎 ===== ADMIN PANEL FUNKCE (bez zásahu do leaderboardu) =====
-window.addAdmin = function () {
-  const username = document.getElementById("admin-name")?.value?.trim();
-  if (!username) return alert("⚠️ Zadej jméno uživatele!");
+window.listAdmins = function () {
+  const list = document.getElementById("admin-list");
+  if (!list) return;
 
-  const users = JSON.parse(localStorage.getItem("users") || "{}");
-  if (!users[username]) return alert("❌ Uživatel neexistuje!");
+  // 🔥 Načti ze vzdálené DB místo localStorage
+  if (window.firebase && firebase.database) {
+    const db = firebase.database();
+    db.ref("admins").on("value", (snapshot) => {
+      list.innerHTML = "";
+      if (!snapshot.exists()) {
+        list.innerHTML = "<li>Žádní admini zatím nejsou.</li>";
+        return;
+      }
 
-  users[username].role = "admin";
-  localStorage.setItem("users", JSON.stringify(users));
-
-  alert(`✅ ${username} byl povýšen na admina!`);
-  if (typeof window.listAdmins === "function") window.listAdmins();
+      snapshot.forEach((child) => {
+        const a = child.val();
+        const li = document.createElement("li");
+        li.textContent = `👑 ${a.name} (${a.email || "bez e-mailu"})`;
+        list.appendChild(li);
+      });
+    });
+  } else {
+    list.innerHTML = "<li>❌ Firebase není připojen.</li>";
+  }
 };
 
 window.listAdmins = function () {
