@@ -112,7 +112,7 @@ function initGame() {
 const firebaseConfig = {
   apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
   authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app", // ✅ Evropa!
+  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app", // ✅ správný region
   projectId: "susenka-web-chat",
   storageBucket: "susenka-web-chat.appspot.com",
   messagingSenderId: "1234567890",
@@ -120,9 +120,21 @@ const firebaseConfig = {
 };
 
 // 🧠 Firebase inicializace
-const app = firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 const db = firebase.database();
 
+// 🔍 Debug připojení
+firebase.database().ref(".info/connected").on("value", (snap) => {
+  if (snap.val() === true) {
+    console.log("✅ Připojeno k Firebase Realtime Database");
+  } else {
+    console.warn("⚠️ Nepřipojeno k Firebase!");
+  }
+});
+
+// 💾 Ulož skóre do Firebase
 function updateLeaderboardFirebase() {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const username = localStorage.getItem("currentUser");
@@ -140,11 +152,13 @@ function updateLeaderboardFirebase() {
     .catch((err) => console.error("❌ Chyba při zápisu do Firebase:", err));
 }
 
-
-// Načti leaderboard po načtení stránky
+// 🏁 Načti leaderboard po načtení stránky
 function initLeaderboard() {
   const leaderboardEl = document.getElementById("leaderboard");
-  if (!leaderboardEl) return;
+  if (!leaderboardEl) {
+    console.warn("⚠️ Element #leaderboard nebyl nalezen");
+    return;
+  }
 
   db.ref("leaderboard").on("value", (snapshot) => {
     const data = [];
@@ -158,8 +172,9 @@ function initLeaderboard() {
     }
 
     data.forEach((p, i) => {
+      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅";
       const li = document.createElement("li");
-      li.innerHTML = `#${i + 1} ${p.name} <span>${p.cookies} 🍪</span>`;
+      li.innerHTML = `${medal} #${i + 1} ${p.name} <span>${p.cookies} 🍪</span>`;
       leaderboardEl.appendChild(li);
     });
   });
