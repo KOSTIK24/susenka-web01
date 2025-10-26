@@ -26,9 +26,11 @@ function initFirebase() {
     firebase.initializeApp(firebaseConfig);
     console.log("🔥 Firebase inicializováno");
   }
-  db = firebase.database();
+
+  db = firebase.database(); // ✅ pouze přiřazení, ne nové const!
   console.log("✅ Připojeno k Firebase");
 }
+
 
 // === Po načtení stránky ===
 document.addEventListener("DOMContentLoaded", () => {
