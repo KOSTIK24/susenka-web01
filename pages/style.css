@@ -270,3 +270,7 @@ body{
   position: relative;
   z-index: 2;
 }
+/* Fix pro klikání na sušenku */
+.cookie-wrap { position: relative; z-index: 1; }
+.cookie { pointer-events: auto; cursor: pointer; }
+
