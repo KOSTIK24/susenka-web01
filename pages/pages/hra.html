@@ -6,17 +6,6 @@
   <title>🍪 Hra • Sušenka Web</title>
   <link rel="stylesheet" href="../style.css" />
 
-  <!-- 🔥 Firebase musí být nahoře -->
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
-
-<!-- 🍪 Hlavní skript (hra, leaderboard) -->
-<script src="../script.js" defer></script>
-
-<!-- 💬 Chat (modul) -->
-<script type="module" src="../chat.js" defer></script>
-
-
   <style>
     /* === Rozložení === */
     main.container {
@@ -182,5 +171,15 @@
   <audio id="bg-music"
     src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3"
     autoplay loop></audio>
+
+  <!-- 🔥 Firebase SDK MUSÍ BÝT PŘED SCRIPTEM -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+
+  <!-- 🍪 Hlavní logika hry a leaderboardu -->
+  <script src="../script.js"></script>
+
+  <!-- 💬 Chat (ES modul, načítá se po hlavním) -->
+  <script type="module" src="../chat.js"></script>
 </body>
 </html>
