@@ -6,15 +6,16 @@
   <title>🍪 Hra • Sušenka Web</title>
   <link rel="stylesheet" href="../style.css" />
 
-  <!-- 🔥 Firebase compat SDK MUSÍ být NAD hlavním skriptem -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+  <!-- 🔥 Firebase musí být nahoře -->
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
 
-  <!-- 🎮 Logika hry a leaderboardu -->
-  <script src="../script.js" defer></script>
+<!-- 🍪 Hlavní skript (hra, leaderboard) -->
+<script src="../script.js" defer></script>
 
-  <!-- 💬 Chat – používá ten samý Firebase projekt -->
-  <script type="module" src="../chat.js" defer></script>
+<!-- 💬 Chat (modul) -->
+<script type="module" src="../chat.js" defer></script>
+
 
   <style>
     /* === Rozložení === */
