@@ -156,14 +156,15 @@
 
    <footer class="footer">© 2025 Sušenka Web</footer>
 
-  <!-- 🔥 Firebase SDK musí být NAHOŘE před script.js -->
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+ <!-- Firebase compat (nutné pro window.firebase) -->
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
 
-  <!-- 🍪 Hlavní logika hry a leaderboardu -->
-  <script src="../script.js" defer></script>
+<!-- Tvoje logika hry + leaderboard -->
+<script src="../script.js" defer></script>
 
-  <!-- 💬 Chat (ES module, načte se po hlavním) -->
-  <script type="module" src="../chat.js" defer></script>
+<!-- Chat nech tak, jak máš -->
+<script type="module" src="../chat.js" defer></script>
+
 </body>
 </html>
