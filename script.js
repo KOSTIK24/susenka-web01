@@ -123,14 +123,23 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// Ulož skóre do Firebase
 function updateLeaderboardFirebase() {
   const users = JSON.parse(localStorage.getItem("users") || "{}");
   const username = localStorage.getItem("currentUser");
-  if (!username || !users[username]) return;
+  if (!username || !users[username]) {
+    console.warn("⚠️ Nelze odeslat do Firebase – žádný uživatel přihlášen!");
+    return;
+  }
+
   const score = users[username].cookies || 0;
-  db.ref("leaderboard/" + username).set({ name: username, cookies: score });
+  console.log("🔥 Pokus o zápis do Firebase:", username, score);
+
+  db.ref("leaderboard/" + username)
+    .set({ name: username, cookies: score })
+    .then(() => console.log("✅ Úspěšně uloženo do Firebase!"))
+    .catch((err) => console.error("❌ Chyba při zápisu do Firebase:", err));
 }
+
 
 // Načti leaderboard po načtení stránky
 function initLeaderboard() {
