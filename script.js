@@ -8,7 +8,10 @@ const setCurrentUser = (n) => localStorage.setItem("currentUser", n);
 const getCurrentUser = () => localStorage.getItem("currentUser");
 const hashPass = (s) => btoa(unescape(encodeURIComponent(s)));
 
-document.addEventListener("DOMContentLoaded", () => initGame());
+document.addEventListener("DOMContentLoaded", () => {
+  initGame();
+  initLeaderboard(); // ✅ Přidáno
+});
 
 // === HRA ===
 function initGame() {
@@ -51,7 +54,7 @@ function initGame() {
     users[username].cookies = count;
     users[username].inventory = inventory;
     saveUsers(users);
-    updateLeaderboardFirebase();
+    updateLeaderboardFirebase(); // ✅ Ukládá i do Firebase
   }
 
   function buyTool(tool) {
@@ -109,7 +112,7 @@ function initGame() {
 const firebaseConfig = {
   apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
   authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.firebaseio.com/",
+  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app", // ✅ Evropa!
   projectId: "susenka-web-chat",
   storageBucket: "susenka-web-chat.appspot.com",
   messagingSenderId: "1234567890",
@@ -129,15 +132,22 @@ function updateLeaderboardFirebase() {
   db.ref("leaderboard/" + username).set({ name: username, cookies: score });
 }
 
-// Zobrazení leaderboardu
-const leaderboardEl = document.getElementById("leaderboard");
-if (leaderboardEl) {
+// Načti leaderboard po načtení stránky
+function initLeaderboard() {
+  const leaderboardEl = document.getElementById("leaderboard");
+  if (!leaderboardEl) return;
+
   db.ref("leaderboard").on("value", (snapshot) => {
     const data = [];
     snapshot.forEach((child) => data.push(child.val()));
     data.sort((a, b) => b.cookies - a.cookies);
 
     leaderboardEl.innerHTML = "";
+    if (!data.length) {
+      leaderboardEl.innerHTML = "<li>Žádní hráči zatím nejsou.</li>";
+      return;
+    }
+
     data.forEach((p, i) => {
       const li = document.createElement("li");
       li.innerHTML = `#${i + 1} ${p.name} <span>${p.cookies} 🍪</span>`;
