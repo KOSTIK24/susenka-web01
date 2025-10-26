@@ -154,10 +154,16 @@
 
   <audio id="bg-music" src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3" autoplay loop></audio>
 
-  <!-- 🔥 Firebase + Skripty -->
+   <footer class="footer">© 2025 Sušenka Web</footer>
+
+  <!-- 🔥 Firebase SDK musí být NAHOŘE před script.js -->
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database-compat.js"></script>
+
+  <!-- 🍪 Hlavní logika hry a leaderboardu -->
   <script src="../script.js" defer></script>
+
+  <!-- 💬 Chat (ES module, načte se po hlavním) -->
   <script type="module" src="../chat.js" defer></script>
 </body>
 </html>
