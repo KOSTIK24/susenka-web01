@@ -4,14 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sušenka Web</title>
+
   <link rel="stylesheet" href="style.css">
+
+  <!-- 🔥 Firebase SDK MUSÍ být před script.js -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- Hlavní skript -->
+  <script src="script.js" defer></script>
 </head>
+
 <body>
   <header class="topbar">
     <div class="brand">
       <img src="images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
       <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
     </div>
+
     <nav class="nav">
       <a href="index.html">Domů</a>
       <a href="pages/hra.html">Hra</a>
@@ -57,7 +67,6 @@
       </article>
     </section>
 
-    <!-- 💎 ADMIN PANEL (jen pro vedoucího nebo admina) -->
     <div id="admin-panel" class="card" style="display:none;">
       <h3>💎 Admin Panel</h3>
       <button class="btn" onclick="giveCookies()">+1000 sušenek</button>
@@ -67,43 +76,20 @@
 
       <h4>👑 Správa adminů</h4>
       <input id="admin-name" placeholder="uživatelské jméno"
-             style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
+         style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
+
       <button class="btn primary" onclick="addAdmin()">Přidat admina</button>
       <button class="btn" onclick="listAdmins()">Zobrazit adminy</button>
-      <ul id="admin-list" style="margin-top:10px;list-style:none;padding:0;color:var(--muted)"></ul>
+      <ul id="admin-list" style="list-style:none;margin-top:10px;padding:0;color:var(--muted)"></ul>
 
       <hr style="margin:20px 0;opacity:.2">
 
       <h4>📜 Registrované účty</h4>
       <button class="btn" onclick="listUsers()">Zobrazit všechny účty</button>
-      <ul id="user-list" style="margin-top:10px;list-style:none;padding:0;color:var(--muted)"></ul>
+      <ul id="user-list" style="list-style:none;margin-top:10px;padding:0;color:var(--muted)"></ul>
     </div>
   </main>
 
   <footer class="footer">© 2025 Sušenka Web</footer>
-
-  <!-- ✅ Skript přesunutý dolů -->
-<!-- v <head> -->
-<script src="script.js" defer></script>
-
-  <script>
-    // 💎 Oznámení po aktivaci admin panelu
-    window.addEventListener("load", () => {
-      const current = localStorage.getItem("currentUser");
-      const users = JSON.parse(localStorage.getItem("users") || "{}");
-      const user = users[current];
-      if (user && (user.role === "vedouci" || user.role === "admin" || user.email === "susenky17@gmail.com")) {
-        const panel = document.getElementById("admin-panel");
-        if (panel) {
-          panel.style.display = "block";
-          const notice = document.createElement("div");
-          notice.textContent = "💎 Admin panel aktivován!";
-          notice.style = "position:fixed;top:10px;right:10px;background:#6c5ce7;color:white;padding:10px 16px;border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.4);z-index:9999;";
-          document.body.appendChild(notice);
-          setTimeout(() => notice.remove(), 3500);
-        }
-      }
-    });
-  </script>
 </body>
 </html>
