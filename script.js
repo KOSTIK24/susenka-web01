@@ -1,226 +1,228 @@
-// ============================================= //
-//        🍪 SUŠENKA WEB – LOKÁLNÍ VERZE         //
-// ============================================= //
+console.log("🔥 Sušenka Web – Firebase verze načtena");
 
-console.log("✅ Sušenka Web – offline verze načtena");
+// === Inicializace Firebase ===
+const firebaseConfig = {
+    apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
+    authDomain: "susenka-web-chat.firebaseapp.com",
+    databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "susenka-web-chat"
+};
 
-// === Pomocné funkce pro LocalStorage ===
-const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
-const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// === Pomocné funkce ===
 const getCurrentUser = () => localStorage.getItem("currentUser");
+const setCurrentUser = (u) => localStorage.setItem("currentUser", u);
 
-// === Spuštění aplikace po načtení stránky ===
+// === Automatické vytvoření hráče ===
+async function ensureUserExists(username) {
+    const ref = db.ref("users/" + username);
+
+    const snap = await ref.get();
+    if (!snap.exists()) {
+        await ref.set({
+            cookies: 0,
+            inventory: [],
+            role: "clen",
+            email: ""
+        });
+        console.log("🆕 Vytvořen nový hráč:", username);
+    }
+}
+
+// === Po načtení stránky ===
 document.addEventListener("DOMContentLoaded", () => {
-  initGame();
-  initLeaderboard();
+    initGame();
+    initLeaderboard();
 });
 
-
-// ========================================================= //
-//                        🎮 HRA                              //
-// ========================================================= //
+// =======================================================
+//                     🎮 HRA
+// =======================================================
 function initGame() {
-  const cookie = document.getElementById("cookie");
-  const countDisplay = document.getElementById("count");
+    const cookie = document.getElementById("cookie");
+    const countDisplay = document.getElementById("count");
+    if (!cookie || !countDisplay) return;
 
-  if (!cookie || !countDisplay) return; // nejsi na hra.html
+    const username = getCurrentUser() || "guest";
+    setCurrentUser(username);
 
-  const tools = [
-    { name: "Dřevěná lopatka", id: "wood", cost: 50, bonus: 1 },
-    { name: "Kovová lopata", id: "metal", cost: 200, bonus: 3 },
-    { name: "Zlatá lopata", id: "gold", cost: 500, bonus: 6 },
-    { name: "Sušenková mašina", id: "machine", cost: 1500, bonus: 15 }
-  ];
+    ensureUserExists(username); // vytvoří účet ve Firebase
 
-  // === uživatel ===
-  const username = getCurrentUser() || "host";
-  const users = loadUsers();
+    const tools = [
+        { name: "Dřevěná lopatka", id: "wood", cost: 50, bonus: 1 },
+        { name: "Kovová lopata", id: "metal", cost: 200, bonus: 3 },
+        { name: "Zlatá lopata", id: "gold", cost: 500, bonus: 6 },
+        { name: "Sušenková mašina", id: "machine", cost: 1500, bonus: 15 }
+    ];
 
-  if (!users[username]) {
-    users[username] = { cookies: 0, inventory: [], role: "clen" };
-    saveUsers(users);
-  }
+    const shop = document.getElementById("shop");
+    const inventoryList = document.getElementById("inventory");
 
-  let count = users[username].cookies;
-  let inventory = users[username].inventory;
+    let count = 0;
+    let inventory = [];
 
-  const shop = document.getElementById("shop");
-  const inventoryList = document.getElementById("inventory");
+    // Načti hráče
+    db.ref("users/" + username).on("value", snap => {
+        const data = snap.val();
+        if (!data) return;
 
-  // === zobrazení počtu sušenek ===
-  function updateDisplay() {
-    countDisplay.textContent = count;
-  }
+        count = data.cookies || 0;
+        inventory = data.inventory || [];
 
-  // === celkový bonus z nástrojů ===
-  function getBonus() {
-    return inventory.reduce((sum, id) => {
-      const item = tools.find(t => t.id === id);
-      return sum + (item ? item.bonus : 0);
-    }, 0);
-  }
-
-  // === uložení hry ===
-  function saveGame() {
-    users[username].cookies = count;
-    users[username].inventory = inventory;
-    saveUsers(users);
-    updateLeaderboardLocal();
-  }
-
-  // === nákup nástroje ===
-  function buyTool(tool) {
-    if (inventory.includes(tool.id)) return;
-    if (count < tool.cost) return alert("❌ Máš málo sušenek!");
-
-    count -= tool.cost;
-    inventory.push(tool.id);
-
-    saveGame();
-    updateDisplay();
-    renderInventory();
-    renderShop();
-  }
-
-  // === vykreslení obchodu ===
-  function renderShop() {
-    shop.innerHTML = "";
-    tools.forEach((t) => {
-      const owned = inventory.includes(t.id);
-      const btn = document.createElement("button");
-      btn.className = "btn";
-      btn.textContent = owned ? "✅ Vlastníš" : `🛒 Koupit (${t.cost})`;
-      btn.disabled = owned;
-      btn.onclick = () => buyTool(t);
-      shop.appendChild(btn);
+        updateDisplay();
+        renderShop();
+        renderInventory();
     });
-  }
 
-  // === vykreslení inventáře ===
-  function renderInventory() {
-    inventoryList.innerHTML = "";
-    if (!inventory.length) {
-      inventoryList.innerHTML = "<li>Nemáš žádné nástroje.</li>";
-      return;
+    function updateDisplay() {
+        countDisplay.textContent = count;
     }
 
-    inventory.forEach((id) => {
-      const t = tools.find(x => x.id === id);
-      const li = document.createElement("li");
-      li.textContent = `${t.name} • +${t.bonus} 🍪/klik`;
-      inventoryList.appendChild(li);
+    function getBonus() {
+        return inventory.reduce((sum, id) => {
+            const item = tools.find(t => t.id === id);
+            return sum + (item ? item.bonus : 0);
+        }, 0);
+    }
+
+    function saveGame() {
+        db.ref("users/" + username).update({
+            cookies: count,
+            inventory: inventory
+        });
+        updateLeaderboardFirebase();
+    }
+
+    function buyTool(tool) {
+        if (inventory.includes(tool.id)) return;
+        if (count < tool.cost) return alert("❌ Máš málo sušenek!");
+
+        count -= tool.cost;
+        inventory.push(tool.id);
+
+        saveGame();
+        updateDisplay();
+    }
+
+    function renderShop() {
+        shop.innerHTML = "";
+        tools.forEach(t => {
+            const owned = inventory.includes(t.id);
+            const btn = document.createElement("button");
+            btn.className = "btn";
+            btn.textContent = owned ? "✅ Vlastníš" : `🛒 Koupit (${t.cost})`;
+            btn.disabled = owned;
+            btn.onclick = () => buyTool(t);
+            shop.appendChild(btn);
+        });
+    }
+
+    function renderInventory() {
+        inventoryList.innerHTML = "";
+        if (!inventory.length) {
+            inventoryList.innerHTML = "<li>Nemáš žádné nástroje.</li>";
+            return;
+        }
+        inventory.forEach(id => {
+            const t = tools.find(x => x.id === id);
+            const li = document.createElement("li");
+            li.textContent = `${t.name} • +${t.bonus} 🍪/klik`;
+            inventoryList.appendChild(li);
+        });
+    }
+
+    cookie.addEventListener("click", () => {
+        count += 1 + getBonus();
+        cookie.style.transform = "scale(0.9)";
+        setTimeout(() => (cookie.style.transform = ""), 100);
+        saveGame();
     });
-  }
-
-  // === kliknutí na sušenku ===
-  cookie.addEventListener("click", () => {
-    count += 1 + getBonus();
-    
-    // animace
-    cookie.style.transform = "scale(0.9)";
-    setTimeout(() => (cookie.style.transform = ""), 100);
-
-    updateDisplay();
-    saveGame();
-  });
-
-  // inicializace
-  updateDisplay();
-  renderShop();
-  renderInventory();
 }
 
+// =======================================================
+//                     🏆 LEADERBOARD
+// =======================================================
+function updateLeaderboardFirebase() {
+    const username = getCurrentUser();
+    if (!username) return;
 
-// ========================================================= //
-//                      🏆 LEADERBOARD                        //
-// ========================================================= //
+    db.ref("users/" + username).get().then(snap => {
+        if (!snap.exists()) return;
+
+        const cookies = snap.val().cookies || 0;
+        db.ref("leaderboard/" + username).set({
+            name: username,
+            cookies: cookies
+        });
+    });
+}
+
 function initLeaderboard() {
-  const leaderboard = document.getElementById("leaderboard");
-  if (!leaderboard) return;
+    const leaderboard = document.getElementById("leaderboard");
+    if (!leaderboard) return;
 
-  updateLeaderboardLocal();
+    db.ref("leaderboard").on("value", snap => {
+        const list = [];
+        snap.forEach(child => list.push(child.val()));
+
+        list.sort((a, b) => b.cookies - a.cookies);
+
+        leaderboard.innerHTML = "";
+        list.forEach((p, i) => {
+            const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅";
+            const li = document.createElement("li");
+            li.innerHTML = `${medal} #${i + 1} ${p.name} <span>${p.cookies} 🍪</span>`;
+            leaderboard.appendChild(li);
+        });
+    });
 }
 
-function updateLeaderboardLocal() {
-  const leaderboard = document.getElementById("leaderboard");
-  if (!leaderboard) return;
-
-  const users = loadUsers();
-  const list = Object.entries(users).map(([name, data]) => ({
-    name,
-    cookies: data.cookies || 0
-  }));
-
-  list.sort((a, b) => b.cookies - a.cookies);
-
-  leaderboard.innerHTML = "";
-
-  if (!list.length) {
-    leaderboard.innerHTML = "<li>Žádní hráči zatím nejsou.</li>";
-    return;
-  }
-
-  list.forEach((p, i) => {
-    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅";
-    const li = document.createElement("li");
-
-    li.innerHTML = `${medal} #${i + 1} ${p.name} <span>${p.cookies} 🍪</span>`;
-    leaderboard.appendChild(li);
-  });
-}
-
-
-// ========================================================= //
-//                    💎 ADMIN PANEL                         //
-// ========================================================= //
+// =======================================================
+//                   💎 ADMIN PANEL
+// =======================================================
 window.addAdmin = function () {
-  const name = document.getElementById("admin-name")?.value?.trim();
-  if (!name) return alert("⚠️ Zadej jméno!");
+    const name = document.getElementById("admin-name")?.value.trim();
+    if (!name) return alert("Zadej jméno!");
 
-  const users = loadUsers();
-  if (!users[name]) return alert("❌ Uživatel neexistuje!");
+    db.ref("users/" + name).get().then(snap => {
+        if (!snap.exists()) return alert("❌ Uživatel neexistuje!");
 
-  users[name].role = "admin";
-  saveUsers(users);
-
-  alert(`👑 ${name} je nyní admin!`);
-  window.listAdmins();
+        db.ref("users/" + name).update({ role: "admin" });
+        alert(`👑 Uživatel ${name} povýšen na admina!`);
+        window.listAdmins();
+    });
 };
 
 window.listAdmins = function () {
-  const list = document.getElementById("admin-list");
-  if (!list) return;
+    const list = document.getElementById("admin-list");
+    if (!list) return;
 
-  const users = loadUsers();
-  list.innerHTML = "";
-
-  const admins = Object.entries(users).filter(([n, u]) => u.role === "admin" || u.role === "vedouci");
-
-  if (!admins.length) {
-    list.innerHTML = "<li>Žádní admini.</li>";
-    return;
-  }
-
-  admins.forEach(([name, u]) => {
-    const li = document.createElement("li");
-    li.textContent = `👑 ${name}`;
-    list.appendChild(li);
-  });
+    db.ref("users").get().then(snap => {
+        list.innerHTML = "";
+        snap.forEach(child => {
+            const u = child.val();
+            if (u.role === "admin" || u.role === "vedouci") {
+                const li = document.createElement("li");
+                li.textContent = `👑 ${child.key}`;
+                list.appendChild(li);
+            }
+        });
+    });
 };
 
 window.listUsers = function () {
-  const list = document.getElementById("user-list");
-  if (!list) return;
+    const list = document.getElementById("user-list");
+    if (!list) return;
 
-  const users = loadUsers();
-  list.innerHTML = "";
-
-  for (const [name, u] of Object.entries(users)) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${name}</strong>
-      <br><span style="opacity:0.7">${u.role}</span>
-    `;
-    list.appendChild(li);
-  }
+    db.ref("users").get().then(snap => {
+        list.innerHTML = "";
+        snap.forEach(child => {
+            const u = child.val();
+            const li = document.createElement("li");
+            li.textContent = `${child.key} • ${u.role}`;
+            list.appendChild(li);
+        });
+    });
 };
