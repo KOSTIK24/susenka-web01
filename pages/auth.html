@@ -48,10 +48,27 @@
     };
 
     // 🔥 INIT FIREBASE (to ti CHYBĚLO)
-    firebase.initializeApp(firebaseConfig);
+   firebase.auth().onAuthStateChanged((user) => {
+  const isAuthPage = location.pathname.endsWith("auth.html");
 
-    const auth = firebase.auth();
-    const statusEl = document.getElementById("status");
+  if (!user && !isAuthPage) {
+    // ❌ nepřihlášen a nejsme na auth stránce
+    console.log("🔒 Nepřihlášen – přesměrování na login");
+    location.href = "/pages/auth.html";
+    return;
+  }
+
+  if (user && isAuthPage) {
+    // ✅ přihlášen a jsme na login stránce → jdi domů
+    console.log("✅ Přihlášen – jdu na index");
+    location.href = "/index.html";
+    return;
+  }
+
+  if (user) {
+    console.log("🔓 Přihlášen:", user.email);
+  }
+});
 
     // 🔐 Persistence – aby login držel mezi stránkami
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
