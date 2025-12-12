@@ -6,15 +6,15 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
+  apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
   authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.firebaseio.com/",
+  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "susenka-web-chat",
-  storageBucket: "susenka-web-chat.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456"
+  storageBucket: "susenka-web-chat.firebasestorage.app",
+  messagingSenderId: "625704029177",
+  appId: "1:625704029177:web:d8510c07f534df48134b28",
+  measurementId: "G-012LNBPFGJ"
 };
-
 const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
