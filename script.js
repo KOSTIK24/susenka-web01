@@ -1,11 +1,11 @@
 // =====================================
-// 🍪 SUŠENKA WEB – HLAVNÍ SCRIPT (Firebase v8)
+// 🍪 SUŠENKA WEB – FINÁLNÍ SCRIPT (v8)
 // =====================================
 
 console.log("🔥 Sušenka Web – script načten");
 
 // ===============================
-// 🔥 FIREBASE CONFIG (v8)
+// 🔥 FIREBASE CONFIG
 // ===============================
 var firebaseConfig = {
   apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
@@ -25,7 +25,7 @@ const db = firebase.database();
 const auth = firebase.auth();
 
 // ===============================
-// 👑 HLAVNÍ VEDOUCÍ
+// 👑 HLAVNÍ VEDOUCÍ EMAIL
 // ===============================
 const LEADER_EMAIL = "susenky17@gmail.com";
 
@@ -39,7 +39,7 @@ function setOnline(username) {
 }
 
 // ===============================
-// 👤 AUTH BOOTSTRAP
+// 👤 AUTH HANDLER
 // ===============================
 auth.onAuthStateChanged(user => {
   if (!user) {
@@ -49,19 +49,20 @@ auth.onAuthStateChanged(user => {
 
   const username = user.email.split("@")[0].toLowerCase();
 
-  // ❌ ochrana proti rolím jako username
+  // ochrana proti špatným klíčům
   if (username === "admin" || username === "vedouci") {
-    console.error("❌ Neplatné username");
+    console.error("❌ Username nesmí být role");
     return;
   }
 
   localStorage.setItem("currentUser", username);
 
-  // 🟢 nastav online stav (globálně)
+  // online stav
   setOnline(username);
 
   const userRef = db.ref("users/" + username);
 
+  // vytvoření / oprava uživatele
   userRef.once("value").then(snap => {
     if (!snap.exists()) {
       userRef.set({
@@ -70,10 +71,15 @@ auth.onAuthStateChanged(user => {
         cookies: 0,
         inventory: []
       });
+    } else {
+      // AUTOMATICKÁ OPRAVA ROLE PRO VEDOUCÍHO
+      if (user.email === LEADER_EMAIL && snap.val().role !== "vedouci") {
+        userRef.update({ role: "vedouci" });
+      }
     }
   });
 
-  // ⏳ počkej na DOM
+  // počkej na DOM
   document.addEventListener("DOMContentLoaded", () => {
     initApp(username);
   });
@@ -217,6 +223,7 @@ function initAdminPanel(username) {
 
   db.ref("users/" + username + "/role").once("value").then(snap => {
     const role = snap.val();
+    console.log("ROLE CHECK:", role);
     if (role === "admin" || role === "vedouci") {
       panel.style.display = "block";
     }
