@@ -1,115 +1,109 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Přihlášení • Sušenka Web</title>
 
-  <!-- Základní styl -->
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../style.css" />
 
-  <!-- 🔥 Firebase SDK – POUZE AUTH -->
+  <!-- 🔥 Firebase SDK – CDN (v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
-  <script>
-    // === Firebase konfigurace (STEJNÁ jako jinde) ===
-  const firebaseConfig = {
-  apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
-  authDomain: "susenka-web-chat.firebaseapp.com",
-  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "susenka-web-chat",
-  storageBucket: "susenka-web-chat.firebasestorage.app",
-  messagingSenderId: "625704029177",
-  appId: "1:625704029177:web:d8510c07f534df48134b28",
-  measurementId: "G-012LNBPFGJ"
-};
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-    }
-  </script>
-
-  <style>
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .auth-card {
-      max-width: 420px;
-      width: 100%;
-      padding: 24px;
-      text-align: center;
-    }
-    .auth-card input {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-    }
-  </style>
 </head>
 
 <body>
-  <div class="card auth-card animate-pop">
-    <h2>🔐 Přihlášení</h2>
-    <p>Přihlas se do Sušenka Web</p>
+  <main class="container" style="display:flex;justify-content:center;align-items:center;min-height:100vh;">
+    <section class="card" style="max-width:420px;width:100%;">
+      <h2 style="text-align:center;">🔐 Přihlášení</h2>
+      <p style="text-align:center;opacity:.8;">Přihlas se do Sušenka Web</p>
 
-    <input type="email" id="email" placeholder="E-mail">
-    <input type="password" id="password" placeholder="Heslo">
+      <input id="email" type="email" placeholder="E-mail"
+             style="width:100%;margin:10px 0;padding:10px;border-radius:10px;border:none;">
+      <input id="password" type="password" placeholder="Heslo"
+             style="width:100%;margin:10px 0;padding:10px;border-radius:10px;border:none;">
 
-    <button class="btn primary" onclick="login()">Přihlásit se</button>
-    <button class="btn" onclick="register()">Registrovat se</button>
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <button class="btn primary" style="flex:1;" onclick="login()">Přihlásit se</button>
+        <button class="btn" style="flex:1;" onclick="register()">Registrovat se</button>
+      </div>
 
-    <p id="error" style="margin-top:10px;color:#ff7675;"></p>
-  </div>
+      <p id="status" style="margin-top:15px;font-size:14px;color:#ff7675;"></p>
+    </section>
+  </main>
 
   <script>
+    console.log("🔥 auth.html script načten");
+
+    // === Firebase konfigurace (STEJNÁ jako jinde) ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
+      authDomain: "susenka-web-chat.firebaseapp.com",
+      databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "susenka-web-chat",
+      storageBucket: "susenka-web-chat.appspot.com",
+      messagingSenderId: "625704029177",
+      appId: "1:625704029177:web:d8510c07f534df48134b28"
+    };
+
+    // 🔥 INIT FIREBASE (to ti CHYBĚLO)
+    firebase.initializeApp(firebaseConfig);
+
     const auth = firebase.auth();
+    const statusEl = document.getElementById("status");
+
+    // 🔐 Persistence – aby login držel mezi stránkami
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => console.log("🔐 Auth persistence LOCAL"))
+      .catch(err => console.error("Persistence error:", err));
 
     function login() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
-      const error = document.getElementById("error");
 
       if (!email || !password) {
-        error.textContent = "Vyplň e-mail i heslo.";
+        statusEl.textContent = "Zadej e-mail i heslo.";
         return;
       }
 
+      statusEl.textContent = "Přihlašuji…";
+
       auth.signInWithEmailAndPassword(email, password)
-        .then(res => {
-          localStorage.setItem("currentUser", res.user.email.split("@")[0]);
-          window.location.href = "../index.html";
+        .then(() => {
+          console.log("Login OK, čekám na auth state…");
         })
         .catch(err => {
-          error.textContent = err.message;
+          statusEl.textContent = err.message;
         });
     }
 
     function register() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value.trim();
-      const error = document.getElementById("error");
 
       if (!email || !password) {
-        error.textContent = "Vyplň e-mail i heslo.";
+        statusEl.textContent = "Zadej e-mail i heslo.";
         return;
       }
 
+      statusEl.textContent = "Registruji…";
+
       auth.createUserWithEmailAndPassword(email, password)
-        .then(res => {
-          localStorage.setItem("currentUser", res.user.email.split("@")[0]);
-          window.location.href = "../index.html";
+        .then(() => {
+          console.log("Registrace OK, čekám na auth state…");
         })
         .catch(err => {
-          error.textContent = err.message;
+          statusEl.textContent = err.message;
         });
     }
+
+    // 🔥 SPRÁVNÝ REDIRECT – AŽ PO POTVRZENÍ SESSION
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        console.log("AUTH CONFIRMED:", user.email);
+        window.location.href = "../index.html";
+      }
+    });
   </script>
 </body>
 </html>
