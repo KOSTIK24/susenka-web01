@@ -1,69 +1,110 @@
-
 <!DOCTYPE html>
 <html lang="cs">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Přihlášení • Sušenka Web</title>
+
+  <!-- Základní styl -->
   <link rel="stylesheet" href="../style.css">
-  <script src="../script.js" defer></script>
+
+  <!-- 🔥 Firebase SDK – POUZE AUTH -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+  <script>
+    // === Firebase konfigurace (STEJNÁ jako jinde) ===
+    const firebaseConfig = {
+      apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
+      authDomain: "susenka-web-chat.firebaseapp.com",
+      projectId: "susenka-web-chat"
+    };
+
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+  </script>
+
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .auth-card {
+      max-width: 420px;
+      width: 100%;
+      padding: 24px;
+      text-align: center;
+    }
+    .auth-card input {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+  </style>
 </head>
+
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar"/>
-      <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
-    </div>
-    <nav class="nav">
-      <a href="../index.html">Domů</a>
-      <a href="hra.html">Hra</a>
-      <a href="team.html">Tým</a>
-      <a href="kontakt.html">Kontakt</a>
-      <a href="faq.html">FAQ</a>
-      <a href="pravidla.html">Pravidla</a>
-      <a href="auth.html" id="logout-link" style="display:none;" onclick="logoutUser()">Odhlásit</a>
-    </nav>
-  </header>
+  <div class="card auth-card animate-pop">
+    <h2>🔐 Přihlášení</h2>
+    <p>Přihlas se do Sušenka Web</p>
 
-  <main class="container">
-    <section class="card animate-pop" style="max-width:720px; margin:0 auto;">
-      <h1>Přihlášení / Registrace</h1>
-      <div style="display:flex; gap:18px; flex-wrap:wrap;">
+    <input type="email" id="email" placeholder="E-mail">
+    <input type="password" id="password" placeholder="Heslo">
 
-        <!-- LOGIN -->
-        <div style="flex:1; min-width:260px;">
-          <h3>Přihlásit se</h3>
-          <label>Uživatelské jméno</label><br>
-          <input id="login-name" placeholder="např. susenka3" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
-          <label>Heslo</label><br>
-          <input id="login-pass" type="password" placeholder="heslo" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
-          <button class="btn primary" id="btn-login">Přihlásit</button>
-        </div>
+    <button class="btn primary" onclick="login()">Přihlásit se</button>
+    <button class="btn" onclick="register()">Registrovat se</button>
 
-        <!-- REGISTER -->
-        <div style="flex:1; min-width:260px;">
-          <h3>Registrovat</h3>
-          <label>Uživatelské jméno</label><br>
-          <input id="reg-name" placeholder="nové jméno" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
-          <label>E-mail</label><br>
-          <input id="reg-email" type="email" placeholder="např. Karel123@gmail.com" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
-          <label>Heslo</label><br>
-          <input id="reg-pass" type="password" placeholder="heslo" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
-          <label>Profilovka (URL) nebo vyber:</label><br>
-          <input id="reg-avatar" placeholder="https://..." style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
-          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-            <img class="avatar-choice" src="https://i.imgur.com/3GxZ8k4.png" data-src="https://i.imgur.com/3GxZ8k4.png" width="56" height="56">
-            <img class="avatar-choice" src="https://i.imgur.com/y6Y2z6d.png" data-src="https://i.imgur.com/y6Y2z6d.png" width="56" height="56">
-            <img class="avatar-choice" src="https://i.imgur.com/8Qf4bPj.png" data-src="https://i.imgur.com/8Qf4bPj.png" width="56" height="56">
-          </div>
-          <button class="btn" id="btn-register">Vytvořit účet</button>
-        </div>
-      </div>
+    <p id="error" style="margin-top:10px;color:#ff7675;"></p>
+  </div>
 
-      <p style="margin-top:14px;color:var(--muted)">💡 Po přihlášení se profil zobrazí nahoře v liště. Vedoucí e-mail má speciální oprávnění.</p>
-    </section>
-  </main>
+  <script>
+    const auth = firebase.auth();
 
-  <footer class="footer">© 2025 Sušenka Web</footer>
+    function login() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const error = document.getElementById("error");
+
+      if (!email || !password) {
+        error.textContent = "Vyplň e-mail i heslo.";
+        return;
+      }
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(res => {
+          localStorage.setItem("currentUser", res.user.email.split("@")[0]);
+          window.location.href = "../index.html";
+        })
+        .catch(err => {
+          error.textContent = err.message;
+        });
+    }
+
+    function register() {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const error = document.getElementById("error");
+
+      if (!email || !password) {
+        error.textContent = "Vyplň e-mail i heslo.";
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(res => {
+          localStorage.setItem("currentUser", res.user.email.split("@")[0]);
+          window.location.href = "../index.html";
+        })
+        .catch(err => {
+          error.textContent = err.message;
+        });
+    }
+  </script>
 </body>
 </html>
