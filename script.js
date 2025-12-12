@@ -24,6 +24,9 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const auth = firebase.auth();
 
+// ===============================
+// 🔐 AUTH PERSISTENCE (KLÍČOVÉ)
+// ===============================
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .then(() => {
     console.log("🔐 Auth persistence nastavena (LOCAL)");
@@ -31,7 +34,6 @@ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
   .catch(err => {
     console.error("❌ Persistence error:", err);
   });
-
 
 // ===============================
 // 👑 HLAVNÍ VEDOUCÍ EMAIL
@@ -48,25 +50,34 @@ function setOnline(username) {
 }
 
 // ===============================
-// 👤 AUTH HANDLER
+// 👤 AUTH HANDLER (SPRÁVNÝ)
 // ===============================
+let authChecked = false;
+
 auth.onAuthStateChanged(user => {
   if (!user) {
-    console.log("👤 Nepřihlášen");
+    if (!authChecked) {
+      // ⏳ Firebase teprve obnovuje session
+      authChecked = true;
+      return;
+    }
+    console.log("👤 Opravdu nepřihlášen");
     return;
   }
 
+  console.log("✅ Přihlášen jako:", user.email);
+  authChecked = true;
+
   const username = user.email.split("@")[0].toLowerCase();
 
-  // ochrana proti špatným klíčům
   if (username === "admin" || username === "vedouci") {
-    console.error("❌ Username nesmí být role");
+    console.error("❌ Neplatné username");
     return;
   }
 
   localStorage.setItem("currentUser", username);
 
-  // online stav
+  // 🟢 online stav globálně
   setOnline(username);
 
   const userRef = db.ref("users/" + username);
@@ -81,14 +92,14 @@ auth.onAuthStateChanged(user => {
         inventory: []
       });
     } else {
-      // AUTOMATICKÁ OPRAVA ROLE PRO VEDOUCÍHO
+      // 🔁 automatická oprava role pro vedoucího
       if (user.email === LEADER_EMAIL && snap.val().role !== "vedouci") {
         userRef.update({ role: "vedouci" });
       }
     }
   });
 
-  // počkej na DOM
+  // ⏳ počkej na DOM
   document.addEventListener("DOMContentLoaded", () => {
     initApp(username);
   });
