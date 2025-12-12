@@ -36,7 +36,13 @@ auth.onAuthStateChanged(user => {
     return;
   }
 
-  const username = user.email.split("@")[0];
+ const username = user.email.split("@")[0].toLowerCase();
+
+if (username === "admin" || username === "vedouci") {
+  console.error("❌ Username nesmí být role");
+  return;
+}
+
   localStorage.setItem("currentUser", username);
 
   const ref = db.ref("users/" + username);
