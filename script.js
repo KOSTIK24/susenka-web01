@@ -1,13 +1,8 @@
-// =====================================
-// 🍪 SUŠENKA WEB – FINÁLNÍ SCRIPT (v8)
-// =====================================
-
+// 🔥 Sušenka Web – hlavní script
 console.log("🔥 Sušenka Web – script načten");
 
-// ===============================
-// 🔥 FIREBASE CONFIG
-// ===============================
-var firebaseConfig = {
+// ===== Firebase konfigurace =====
+const firebaseConfig = {
   apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
   authDomain: "susenka-web-chat.firebaseapp.com",
   databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
@@ -17,278 +12,61 @@ var firebaseConfig = {
   appId: "1:625704029177:web:d8510c07f534df48134b28"
 };
 
+// ===== Init Firebase (jen jednou) =====
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
+  console.log("✅ Firebase inicializován");
 }
 
-const db = firebase.database();
-const auth = firebase.auth();
-
-// ===============================
-// 🔐 AUTH PERSISTENCE (KLÍČOVÉ)
-// ===============================
-auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-  .then(() => {
-    console.log("🔐 Auth persistence nastavena (LOCAL)");
-  })
-  .catch(err => {
-    console.error("❌ Persistence error:", err);
-  });
-
-// ===============================
-// 👑 HLAVNÍ VEDOUCÍ EMAIL
-// ===============================
-const LEADER_EMAIL = "susenky17@gmail.com";
-
-// ===============================
-// 🟢 ONLINE STATUS (GLOBAL)
-// ===============================
-function setOnline(username) {
-  const ref = db.ref("online/" + username);
-  ref.set(true);
-  ref.onDisconnect().remove();
-}
-
-// ===============================
-// 👤 AUTH HANDLER (SPRÁVNÝ)
-// ===============================
-let authChecked = false;
-
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    if (!authChecked) {
-      // ⏳ Firebase teprve obnovuje session
-      authChecked = true;
-      return;
-    }
-    console.log("👤 Opravdu nepřihlášen");
-    return;
-  }
-
-  console.log("✅ Přihlášen jako:", user.email);
-  authChecked = true;
-
-  const username = user.email.split("@")[0].toLowerCase();
-
-  if (username === "admin" || username === "vedouci") {
-    console.error("❌ Neplatné username");
-    return;
-  }
-
-  localStorage.setItem("currentUser", username);
-
-  // 🟢 online stav globálně
-  setOnline(username);
-
-  const userRef = db.ref("users/" + username);
-
-  // vytvoření / oprava uživatele
-  userRef.once("value").then(snap => {
-    if (!snap.exists()) {
-      userRef.set({
-        email: user.email,
-        role: user.email === LEADER_EMAIL ? "vedouci" : "clen",
-        cookies: 0,
-        inventory: []
-      });
-    } else {
-      // 🔁 automatická oprava role pro vedoucího
-      if (user.email === LEADER_EMAIL && snap.val().role !== "vedouci") {
-        userRef.update({ role: "vedouci" });
-      }
-    }
-  });
-
-  // ⏳ počkej na DOM
-  document.addEventListener("DOMContentLoaded", () => {
-    initApp(username);
-  });
+// ===== Po načtení DOM =====
+document.addEventListener("DOMContentLoaded", () => {
+  initLeaderboard();
 });
 
-// ===============================
-// 🚀 START APP
-// ===============================
-function initApp(username) {
-  initGame(username);
-  initLeaderboard();
-  initAdminPanel(username);
-}
-
-// ===============================
-// 🎮 HRA
-// ===============================
-function initGame(username) {
-  const cookie = document.getElementById("cookie");
-  const countEl = document.getElementById("count");
-  if (!cookie || !countEl) return;
-
-  const tools = [
-    { id: "wood", name: "Dřevěná lopatka", cost: 50, bonus: 1 },
-    { id: "metal", name: "Kovová lopata", cost: 200, bonus: 3 },
-    { id: "gold", name: "Zlatá lopata", cost: 500, bonus: 6 },
-    { id: "machine", name: "Sušenková mašina", cost: 1500, bonus: 15 }
-  ];
-
-  const userRef = db.ref("users/" + username);
-
-  let count = 0;
-  let inventory = [];
-
-  const shop = document.getElementById("shop");
-  const inventoryList = document.getElementById("inventory");
-
-  userRef.on("value", snap => {
-    const d = snap.val();
-    if (!d) return;
-    count = d.cookies || 0;
-    inventory = d.inventory || [];
-    render();
-  });
-
-  function bonus() {
-    return inventory.reduce((s, id) => {
-      const t = tools.find(x => x.id === id);
-      return s + (t ? t.bonus : 0);
-    }, 0);
+// ===== LEADERBOARD (VARIANTA A) =====
+function initLeaderboard() {
+  const leaderboardEl = document.getElementById("leaderboard");
+  if (!leaderboardEl) {
+    console.log("ℹ️ Leaderboard element nenalezen – stránka ho nemá");
+    return;
   }
 
-  function save() {
-    userRef.update({ cookies: count, inventory });
-    updateLeaderboard(username, count);
-  }
+  console.log("🏆 Načítám leaderboard…");
 
-  function render() {
-    countEl.textContent = count;
-    renderShop();
-    renderInventory();
-  }
+  firebase.database().ref("leaderboard").on("value", (snapshot) => {
+    leaderboardEl.innerHTML = "";
 
-  function renderShop() {
-    if (!shop) return;
-    shop.innerHTML = "";
-    tools.forEach(t => {
-      const owned = inventory.includes(t.id);
-      const btn = document.createElement("button");
-      btn.className = "btn";
-      btn.textContent = owned ? "✅ Vlastníš" : `🛒 ${t.name} (${t.cost})`;
-      btn.disabled = owned;
-      btn.onclick = () => {
-        if (count < t.cost) return alert("❌ Máš málo sušenek");
-        count -= t.cost;
-        inventory.push(t.id);
-        save();
-      };
-      shop.appendChild(btn);
-    });
-  }
-
-  function renderInventory() {
-    if (!inventoryList) return;
-    inventoryList.innerHTML = "";
-    if (!inventory.length) {
-      inventoryList.innerHTML = "<li>Nemáš žádné nástroje.</li>";
+    if (!snapshot.exists()) {
+      leaderboardEl.innerHTML = "<li>Žádná data</li>";
       return;
     }
-    inventory.forEach(id => {
-      const t = tools.find(x => x.id === id);
+
+    const data = [];
+
+    snapshot.forEach((child) => {
+      data.push({
+        name: child.key,
+        cookies: child.val().cookies || 0
+      });
+    });
+
+    // seřadit podle cookies
+    data.sort((a, b) => b.cookies - a.cookies);
+
+    data.forEach((player, i) => {
       const li = document.createElement("li");
-      li.textContent = `${t.name} • +${t.bonus} 🍪/klik`;
-      inventoryList.appendChild(li);
-    });
-  }
+      const medal =
+        i === 0 ? "🥇" :
+        i === 1 ? "🥈" :
+        i === 2 ? "🥉" : "🏅";
 
-  cookie.addEventListener("click", () => {
-    count += 1 + bonus();
-    cookie.style.transform = "scale(0.9)";
-    setTimeout(() => (cookie.style.transform = ""), 100);
-    save();
+      li.innerHTML = `
+        <span>${medal} ${player.name}</span>
+        <span>${player.cookies} 🍪</span>
+      `;
+      leaderboardEl.appendChild(li);
+    });
+
+    console.log("✅ Leaderboard aktualizován");
   });
 }
-
-// ===============================
-// 🏆 LEADERBOARD
-// ===============================
-function updateLeaderboard(username, cookies) {
-  db.ref("leaderboard/" + username).set({
-    name: username,
-    cookies
-  });
-}
-
-function initLeaderboard() {
-  const el = document.getElementById("leaderboard");
-  if (!el) return;
-
-  db.ref("leaderboard").on("value", snap => {
-    el.innerHTML = "";
-    const arr = [];
-    snap.forEach(c => arr.push(c.val()));
-    arr.sort((a, b) => b.cookies - a.cookies);
-
-    arr.forEach((p, i) => {
-      const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : "🏅";
-      const li = document.createElement("li");
-      li.innerHTML = `${medal} ${p.name} <span>${p.cookies} 🍪</span>`;
-      el.appendChild(li);
-    });
-  });
-}
-
-// ===============================
-// 💎 ADMIN PANEL
-// ===============================
-function initAdminPanel(username) {
-  const panel = document.getElementById("admin-panel");
-  if (!panel) return;
-
-  db.ref("users/" + username + "/role").once("value").then(snap => {
-    const role = snap.val();
-    console.log("ROLE CHECK:", role);
-    if (role === "admin" || role === "vedouci") {
-      panel.style.display = "block";
-    }
-  });
-}
-
-window.addAdmin = function () {
-  const name = document.getElementById("admin-name")?.value.trim();
-  if (!name) return alert("Zadej jméno");
-
-  db.ref("users/" + name).once("value").then(snap => {
-    if (!snap.exists()) return alert("Uživatel neexistuje");
-    db.ref("users/" + name).update({ role: "admin" });
-    alert(`👑 ${name} je admin`);
-  });
-};
-
-window.listAdmins = function () {
-  const list = document.getElementById("admin-list");
-  if (!list) return;
-  list.innerHTML = "";
-
-  db.ref("users").once("value").then(snap => {
-    snap.forEach(c => {
-      const u = c.val();
-      if (u.role === "admin" || u.role === "vedouci") {
-        const li = document.createElement("li");
-        li.textContent = `👑 ${c.key}`;
-        list.appendChild(li);
-      }
-    });
-  });
-};
-
-window.listUsers = function () {
-  const list = document.getElementById("user-list");
-  if (!list) return;
-  list.innerHTML = "";
-
-  db.ref("users").once("value").then(snap => {
-    snap.forEach(c => {
-      const u = c.val();
-      const li = document.createElement("li");
-      li.textContent = `${c.key} • ${u.role}`;
-      list.appendChild(li);
-    });
-  });
-};
