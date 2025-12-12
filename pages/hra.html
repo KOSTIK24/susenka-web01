@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hra • Sušenka Web</title>
-  <link rel="stylesheet" href="../style.css" />
+
+  <link rel="stylesheet" href="../style.css">
+
+  <!-- 🔥 Firebase SDK (nutné pro script.js) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <!-- Hlavní skript -->
   <script src="../script.js" defer></script>
-  <script type="module" src="../chat.js" defer></script>
-  ...
-</head>
+
+  <!-- Chat (pokud používáš) -->
+  <script src="../chat.js" defer></script>
 
   <style>
     /* === Rozložení === */
@@ -113,6 +120,7 @@
       <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
       <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
     </div>
+
     <nav class="nav">
       <a href="../index.html">Domů</a>
       <a href="hra.html" class="active">Hra</a>
@@ -123,13 +131,11 @@
   </header>
 
   <main class="container">
-    <!-- 🏆 Žebříček -->
     <aside class="card leaderboard animate-pop">
       <h2>🏆 Žebříček</h2>
       <ul id="leaderboard"></ul>
     </aside>
 
-    <!-- 🎮 Hra -->
     <section class="card game-card animate-pop">
       <h2>🍪 Sušenka Hra</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
@@ -155,7 +161,6 @@
       </div>
     </section>
 
-    <!-- 💬 Chat -->
     <aside class="card chat-panel animate-pop">
       <h2>💬 Chat</h2>
       <div id="chat-box"></div>
@@ -163,6 +168,7 @@
         <input type="text" id="chat-message" placeholder="Napiš zprávu...">
         <button id="send-btn" class="btn">📤</button>
       </div>
+
       <h3 style="margin-top:10px;">🟢 Online</h3>
       <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
