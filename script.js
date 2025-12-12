@@ -24,6 +24,15 @@ if (!firebase.apps.length) {
 const db = firebase.database();
 const auth = firebase.auth();
 
+auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+  .then(() => {
+    console.log("🔐 Auth persistence nastavena (LOCAL)");
+  })
+  .catch(err => {
+    console.error("❌ Persistence error:", err);
+  });
+
+
 // ===============================
 // 👑 HLAVNÍ VEDOUCÍ EMAIL
 // ===============================
