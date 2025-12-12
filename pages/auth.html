@@ -14,11 +14,16 @@
 
   <script>
     // === Firebase konfigurace (STEJNÁ jako jinde) ===
-    const firebaseConfig = {
-      apiKey: "AIzaSyDp-kZTn7M5oDCUOvPXYu4wF8uD8ztV0DM",
-      authDomain: "susenka-web-chat.firebaseapp.com",
-      projectId: "susenka-web-chat"
-    };
+  const firebaseConfig = {
+  apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
+  authDomain: "susenka-web-chat.firebaseapp.com",
+  databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "susenka-web-chat",
+  storageBucket: "susenka-web-chat.firebasestorage.app",
+  messagingSenderId: "625704029177",
+  appId: "1:625704029177:web:d8510c07f534df48134b28",
+  measurementId: "G-012LNBPFGJ"
+};
 
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
