@@ -1,31 +1,21 @@
+
 <!DOCTYPE html>
 <html lang="cs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hra • Sušenka Web</title>
-
-  <link rel="stylesheet" href="../style.css">
-
-  <!-- 🔥 Firebase SDK (nutné pro script.js) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-
-  <!-- Hlavní skript -->
-  <script src="../script.js" defer></script>
-
-  <!-- Chat (pokud používáš) -->
-  <script src="../chat.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🍪 Hra • Sušenka Web</title>
+  <link rel="stylesheet" href="../style.css" />
 
   <style>
     /* === Rozložení === */
     main.container {
       display: flex;
       justify-content: center;
-      gap: 20px;
       align-items: flex-start;
+      gap: 20px;
       flex-wrap: nowrap;
+      padding: 10px;
     }
 
     .game-card {
@@ -37,36 +27,37 @@
     /* === Chat === */
     .chat-panel {
       flex: 1;
-      min-width: 300px;
-      max-width: 380px;
+      min-width: 320px;
+      max-width: 400px;
+      height: 600px;
       display: flex;
       flex-direction: column;
-      height: 600px;
     }
 
     #chat-box {
       flex: 1;
       overflow-y: auto;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
       border-radius: 12px;
       padding: 10px;
-      border: 1px solid rgba(255,255,255,0.1);
-      max-height: 400px;
+      margin-bottom: 10px;
+      max-height: 380px;
       scroll-behavior: smooth;
     }
 
     .msg {
-      margin: 6px 0;
+      margin: 5px 0;
+      word-wrap: break-word;
     }
 
     .bubble {
-      background: linear-gradient(145deg, #6c5ce7, #a770ef);
+      background: linear-gradient(145deg,#6c5ce7,#a770ef);
       display: inline-block;
       padding: 8px 12px;
       border-radius: 10px;
       color: #fff;
       max-width: 90%;
-      word-wrap: break-word;
     }
 
     .time {
@@ -78,8 +69,7 @@
 
     .chat-input {
       display: flex;
-      gap: 10px;
-      margin-top: 10px;
+      gap: 8px;
     }
 
     .chat-input input {
@@ -108,7 +98,7 @@
       display: flex;
       justify-content: space-between;
       background: rgba(255,255,255,0.08);
-      margin: 5px 0;
+      margin: 4px 0;
       padding: 6px 10px;
       border-radius: 8px;
     }
@@ -118,10 +108,9 @@
 <body>
   <header class="topbar">
     <div class="brand">
-      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar">
+      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar" />
       <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
     </div>
-
     <nav class="nav">
       <a href="../index.html">Domů</a>
       <a href="hra.html" class="active">Hra</a>
@@ -132,11 +121,13 @@
   </header>
 
   <main class="container">
+    <!-- 🏆 Žebříček -->
     <aside class="card leaderboard animate-pop">
       <h2>🏆 Žebříček</h2>
-      <ul id="leaderboard"></ul>
+      <ul id="leaderboard"><li>Načítám data...</li></ul>
     </aside>
 
+    <!-- 🍪 Hra -->
     <section class="card game-card animate-pop">
       <h2>🍪 Sušenka Hra</h2>
       <p class="counter">Sušenky: <span id="count">0</span></p>
@@ -153,7 +144,8 @@
 
       <div class="upgrade-section">
         <h3>🛠️ Nástroje</h3>
-        <div id="shop" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>
+        <div id="shop"
+          style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;"></div>
       </div>
 
       <div class="upgrade-section">
@@ -162,21 +154,34 @@
       </div>
     </section>
 
+    <!-- 💬 Chat -->
     <aside class="card chat-panel animate-pop">
       <h2>💬 Chat</h2>
       <div id="chat-box"></div>
       <div class="chat-input">
-        <input type="text" id="chat-message" placeholder="Napiš zprávu...">
+        <input type="text" id="chat-message" placeholder="Napiš zprávu…" />
         <button id="send-btn" class="btn">📤</button>
       </div>
-
       <h3 style="margin-top:10px;">🟢 Online</h3>
       <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
   </main>
 
-  <footer class="footer">© 2025 Sušenka Web</footer>
+<footer class="footer">© 2025 Sušenka Web</footer>
 
-  <audio id="bg-music" src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3" autoplay loop></audio>
+<audio id="bg-music"
+  src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3"
+  autoplay loop></audio>
+
+  <!-- 🔥 Firebase SDK musí být NAHOŘE a BEZ defer -->
+ <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+ 
+  <!-- 🍪 Hlavní logika hry a leaderboardu -->
+  <script src="../script.js"></script>
+
+  <!-- 💬 Chat (modul – zůstává s defer, protože je samostatný) -->
+  <script type="module" src="../chat.js" defer></script>
 </body>
 </html>
