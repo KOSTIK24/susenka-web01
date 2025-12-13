@@ -2,43 +2,36 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Přihlášení • Sušenka Web</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="../style.css" />
+  <link rel="stylesheet" href="/style.css" />
 
-  <!-- 🔥 Firebase SDK – CDN (v8) -->
+  <!-- 🔥 Firebase SDK (v8 – CDN) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 </head>
 
-<body>
-  <main class="container" style="display:flex;justify-content:center;align-items:center;min-height:100vh;">
-    <section class="card" style="max-width:420px;width:100%;">
-      <h2 style="text-align:center;">🔐 Přihlášení</h2>
-      <p style="text-align:center;opacity:.8;">Přihlas se do Sušenka Web</p>
+<body class="centered">
 
-      <input id="email" type="email" placeholder="E-mail"
-             style="width:100%;margin:10px 0;padding:10px;border-radius:10px;border:none;">
-      <input id="password" type="password" placeholder="Heslo"
-             style="width:100%;margin:10px 0;padding:10px;border-radius:10px;border:none;">
+  <div class="card auth-card">
+    <h2>🔐 Přihlášení</h2>
 
-      <div style="display:flex;gap:10px;margin-top:10px;">
-        <button class="btn primary" style="flex:1;" onclick="login()">Přihlásit se</button>
-        <button class="btn" style="flex:1;" onclick="register()">Registrovat se</button>
-      </div>
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Heslo" />
 
-      <p id="status" style="margin-top:15px;font-size:14px;color:#ff7675;"></p>
-    </section>
-  </main>
+    <button class="btn primary" onclick="login()">Přihlásit se</button>
+    <button class="btn" onclick="register()">Registrovat se</button>
+
+    <p id="status" style="margin-top:10px;color:#f88;"></p>
+  </div>
 
   <script>
     console.log("🔥 auth.html script načten");
 
-    // === Firebase konfigurace (STEJNÁ jako jinde) ===
+    // ===== Firebase konfigurace =====
     const firebaseConfig = {
-      apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
+      apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
       authDomain: "susenka-web-chat.firebaseapp.com",
       databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "susenka-web-chat",
@@ -47,81 +40,51 @@
       appId: "1:625704029177:web:d8510c07f534df48134b28"
     };
 
-    // 🔥 INIT FIREBASE (to ti CHYBĚLO)
-   firebase.auth().onAuthStateChanged((user) => {
-  const isAuthPage = location.pathname.endsWith("auth.html");
+    // ===== INIT FIREBASE (POVINNÉ) =====
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+      console.log("✅ Firebase inicializován (auth)");
+    }
 
-  if (!user && !isAuthPage) {
-    // ❌ nepřihlášen a nejsme na auth stránce
-    console.log("🔒 Nepřihlášen – přesměrování na login");
-    location.href = "/pages/auth.html";
-    return;
-  }
+    const auth = firebase.auth();
+    const statusEl = document.getElementById("status");
 
-  if (user && isAuthPage) {
-    // ✅ přihlášen a jsme na login stránce → jdi domů
-    console.log("✅ Přihlášen – jdu na index");
-    location.href = "/index.html";
-    return;
-  }
-
-  if (user) {
-    console.log("🔓 Přihlášen:", user.email);
-  }
-});
-
-    // 🔐 Persistence – aby login držel mezi stránkami
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => console.log("🔐 Auth persistence LOCAL"))
-      .catch(err => console.error("Persistence error:", err));
-
+    // ===== LOGIN =====
     function login() {
       const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      if (!email || !password) {
-        statusEl.textContent = "Zadej e-mail i heslo.";
-        return;
-      }
+      const password = document.getElementById("password").value;
 
       statusEl.textContent = "Přihlašuji…";
 
       auth.signInWithEmailAndPassword(email, password)
         .then(() => {
-          console.log("Login OK, čekám na auth state…");
+          statusEl.textContent = "✅ Přihlášeno";
+          location.href = "/index.html";
         })
         .catch(err => {
+          console.error(err);
           statusEl.textContent = err.message;
         });
     }
 
+    // ===== REGISTER =====
     function register() {
       const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value.trim();
-
-      if (!email || !password) {
-        statusEl.textContent = "Zadej e-mail i heslo.";
-        return;
-      }
+      const password = document.getElementById("password").value;
 
       statusEl.textContent = "Registruji…";
 
       auth.createUserWithEmailAndPassword(email, password)
         .then(() => {
-          console.log("Registrace OK, čekám na auth state…");
+          statusEl.textContent = "✅ Registrováno, přihlášeno";
+          location.href = "/index.html";
         })
         .catch(err => {
+          console.error(err);
           statusEl.textContent = err.message;
         });
     }
-
-    // 🔥 SPRÁVNÝ REDIRECT – AŽ PO POTVRZENÍ SESSION
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        console.log("AUTH CONFIRMED:", user.email);
-        window.location.href = "../index.html";
-      }
-    });
   </script>
+
 </body>
 </html>
