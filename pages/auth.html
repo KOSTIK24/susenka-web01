@@ -2,72 +2,89 @@
 <html lang="cs">
 <head>
   <meta charset="UTF-8" />
-  <title>Přihlášení • Sušenka Web</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔐 Přihlášení • Sušenka Web</title>
 
-  <!-- 💜 Stejný styl jako celý web -->
-  <link rel="stylesheet" href="/style.css" />
+  <!-- 🔮 Stejný globální styl -->
+  <link rel="stylesheet" href="../style.css" />
 
-  <!-- 🔥 Firebase SDK (v8 CDN) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <style>
+    /* === Rozložení stejné jako hra, jen centrované === */
+    main.container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: calc(100vh - 120px);
+      padding: 10px;
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      text-align: center;
+    }
+
+    .auth-card input {
+      width: 100%;
+      margin-bottom: 12px;
+    }
+  </style>
 </head>
 
 <body>
+  <!-- 🔝 TOPBAR – STEJNÝ -->
+  <header class="topbar">
+    <div class="brand">
+      <img src="../images/susenka-logo.png"
+           alt="logo"
+           class="brand-logo"
+           id="topbar-avatar" />
+      <span class="brand-name" id="topbar-username">
+        Sušenka <b>Web</b>
+      </span>
+    </div>
+    <nav class="nav">
+      <a href="../index.html">Domů</a>
+      <a href="hra.html">Hra</a>
+      <a href="team.html">Tým</a>
+      <a href="faq.html">FAQ</a>
+      <a href="pravidla.html">Pravidla</a>
+    </nav>
+  </header>
 
-  <!-- 🌌 FIALOVÉ POZADÍ (stejné jako všude) -->
-  <div style="
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  ">
-
-    <!-- 💜 FIALOVÁ KARTA -->
-    <div class="card animate-pop" style="
-      width:100%;
-      max-width:420px;
-      text-align:center;
-    ">
-
-      <h2 style="margin-bottom:6px;">🔐 Přihlášení</h2>
+  <!-- 🔐 OBSAH -->
+  <main class="container">
+    <section class="card auth-card animate-pop">
+      <h2>🔐 Přihlášení</h2>
       <p style="opacity:.7;margin-bottom:18px;">
         Přihlas se do <b>Sušenka Web</b>
       </p>
 
-      <input
-        id="email"
-        type="email"
-        placeholder="Email"
-        style="width:100%;margin-bottom:12px;"
-      >
+      <input id="email" type="email" placeholder="Email">
 
-      <input
-        id="password"
-        type="password"
-        placeholder="Heslo"
-        style="width:100%;margin-bottom:16px;"
-      >
+      <input id="password" type="password" placeholder="Heslo">
 
-      <div style="display:flex;gap:10px;justify-content:center;">
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:6px;">
         <button class="btn primary" onclick="login()">Přihlásit se</button>
         <button class="btn" onclick="register()">Registrovat se</button>
       </div>
 
-      <p id="status" style="
-        margin-top:14px;
-        min-height:20px;
-        font-size:14px;
-        color:#ff9aa2;
-      "></p>
+      <p id="status"
+         style="margin-top:14px;min-height:20px;font-size:14px;color:#ff9aa2;">
+      </p>
+    </section>
+  </main>
 
-    </div>
-  </div>
+  <footer class="footer">© 2025 Sušenka Web</footer>
+
+  <!-- 🔥 Firebase SDK – STEJNÉ JAKO VE HŘE -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
   <script>
-    console.log("🔥 auth.html – fialová verze načtena");
+    console.log("🔥 auth.html – stejný styl jako hra");
 
-    // === Firebase konfigurace ===
     const firebaseConfig = {
       apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
       authDomain: "susenka-web-chat.firebaseapp.com",
@@ -78,7 +95,6 @@
       appId: "1:625704029177:web:d8510c07f534df48134b28"
     };
 
-    // === Init Firebase ===
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
       console.log("✅ Firebase inicializován (auth)");
@@ -87,7 +103,6 @@
     const auth = firebase.auth();
     const statusEl = document.getElementById("status");
 
-    // === LOGIN ===
     function login() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
@@ -97,15 +112,13 @@
       auth.signInWithEmailAndPassword(email, password)
         .then(() => {
           statusEl.textContent = "✅ Přihlášeno";
-          location.href = "/index.html";
+          location.href = "../index.html";
         })
         .catch(err => {
-          console.error(err);
           statusEl.textContent = err.message;
         });
     }
 
-    // === REGISTER ===
     function register() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
@@ -115,14 +128,12 @@
       auth.createUserWithEmailAndPassword(email, password)
         .then(() => {
           statusEl.textContent = "✅ Registrováno";
-          location.href = "/index.html";
+          location.href = "../index.html";
         })
         .catch(err => {
-          console.error(err);
           statusEl.textContent = err.message;
         });
     }
   </script>
-
 </body>
 </html>
