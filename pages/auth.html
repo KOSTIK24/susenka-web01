@@ -5,7 +5,7 @@
   <title>Přihlášení • Sušenka Web</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- 🔮 Stejný styl jako zbytek webu -->
+  <!-- 💜 Stejný styl jako celý web -->
   <link rel="stylesheet" href="/style.css" />
 
   <!-- 🔥 Firebase SDK (v8 CDN) -->
@@ -15,40 +15,59 @@
 
 <body>
 
-  <!-- 🌌 Fialové pozadí jako všude -->
-  <div class="auth-wrapper"
-       style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+  <!-- 🌌 FIALOVÉ POZADÍ (stejné jako všude) -->
+  <div style="
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  ">
 
-    <div class="card animate-pop" style="max-width:420px;width:100%;text-align:center;">
-      <h2 style="margin-bottom:10px;">🔐 Přihlášení</h2>
-      <p style="opacity:.7;margin-bottom:20px;">Přihlas se do Sušenka Web</p>
+    <!-- 💜 FIALOVÁ KARTA -->
+    <div class="card animate-pop" style="
+      width:100%;
+      max-width:420px;
+      text-align:center;
+    ">
 
-      <input id="email"
-             type="email"
-             placeholder="Email"
-             style="width:100%;margin-bottom:12px;">
+      <h2 style="margin-bottom:6px;">🔐 Přihlášení</h2>
+      <p style="opacity:.7;margin-bottom:18px;">
+        Přihlas se do <b>Sušenka Web</b>
+      </p>
 
-      <input id="password"
-             type="password"
-             placeholder="Heslo"
-             style="width:100%;margin-bottom:16px;">
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+        style="width:100%;margin-bottom:12px;"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Heslo"
+        style="width:100%;margin-bottom:16px;"
+      >
 
       <div style="display:flex;gap:10px;justify-content:center;">
         <button class="btn primary" onclick="login()">Přihlásit se</button>
         <button class="btn" onclick="register()">Registrovat se</button>
       </div>
 
-      <p id="status"
-         style="margin-top:15px;min-height:20px;font-size:14px;color:#ff9aa2;">
-      </p>
-    </div>
+      <p id="status" style="
+        margin-top:14px;
+        min-height:20px;
+        font-size:14px;
+        color:#ff9aa2;
+      "></p>
 
+    </div>
   </div>
 
   <script>
-    console.log("🔥 auth.html (fialová verze) načten");
+    console.log("🔥 auth.html – fialová verze načtena");
 
-    // ===== Firebase konfigurace =====
+    // === Firebase konfigurace ===
     const firebaseConfig = {
       apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
       authDomain: "susenka-web-chat.firebaseapp.com",
@@ -59,7 +78,7 @@
       appId: "1:625704029177:web:d8510c07f534df48134b28"
     };
 
-    // ===== Init Firebase =====
+    // === Init Firebase ===
     if (!firebase.apps.length) {
       firebase.initializeApp(firebaseConfig);
       console.log("✅ Firebase inicializován (auth)");
@@ -68,7 +87,7 @@
     const auth = firebase.auth();
     const statusEl = document.getElementById("status");
 
-    // ===== LOGIN =====
+    // === LOGIN ===
     function login() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
@@ -86,7 +105,7 @@
         });
     }
 
-    // ===== REGISTER =====
+    // === REGISTER ===
     function register() {
       const email = document.getElementById("email").value.trim();
       const password = document.getElementById("password").value;
