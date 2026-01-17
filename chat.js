@@ -50,7 +50,7 @@ const badWords = [
   "porno","porn",
   "sex","sexy",
   "penis","penisu",
-  "shit","fuck","dick","cock","bitch","mrdat","jeb"
+  "shit","fuck","dick","cock","bitch","mrdat","jeb",
   "trump","trumpove",
 ];
 function censor(text){
