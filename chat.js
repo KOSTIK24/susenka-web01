@@ -51,6 +51,7 @@ const badWords = [
   "sex","sexy",
   "penis","penisu",
   "shit","fuck","dick","cock","bitch","mrdat","jeb"
+  "trump","trumpove",
 ];
 function censor(text){
   let out = text;
