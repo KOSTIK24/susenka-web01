@@ -4,22 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Přihlášení • Sušenka Web</title>
-  <link rel="stylesheet" href="../style.css">
-  <script src="../script.js" defer></script>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js" defer></script>
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <img src="../images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar"/>
+      <img src="./images/susenka-logo.png" alt="logo" class="brand-logo" id="topbar-avatar"/>
       <span class="brand-name" id="topbar-username">Sušenka <b>Web</b></span>
     </div>
     <nav class="nav">
-      <a href="../index.html">Domů</a>
-      <a href="hra.html">Hra</a>
-      <a href="team.html">Tým</a>
-      <a href="kontakt.html">Kontakt</a>
-      <a href="faq.html">FAQ</a>
-      <a href="pravidla.html">Pravidla</a>
+      <a href="./index.html">Domů</a>
+      <a href="./hra.html">Hra</a>
+      <a href="./team.html">Tým</a>
+      <a href="./kontakt.html">Kontakt</a>
+      <a href="./faq.html">FAQ</a>
+      <a href="./pages/pravidla.html">Pravidla</a>
       <a href="auth.html" id="logout-link" style="display:none;" onclick="logoutUser()">Odhlásit</a>
     </nav>
   </header>
@@ -60,9 +60,87 @@
       </div>
 
       <p style="margin-top:14px;color:var(--muted)">💡 Po přihlášení se profil zobrazí nahoře v liště. Vedoucí e-mail má speciální oprávnění.</p>
+      <p id="auth-status" style="margin-top:10px;min-height:20px;color:#ffb3c1"></p>
     </section>
   </main>
 
   <footer class="footer">© 2026 Sušenka Web</footer>
+
+  <script>
+    const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
+    const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
+    const statusEl = document.getElementById("auth-status");
+
+    let selectedAvatar = "";
+
+    document.querySelectorAll(".avatar-choice").forEach((img) => {
+      img.style.cursor = "pointer";
+      img.addEventListener("click", () => {
+        document.querySelectorAll(".avatar-choice").forEach((x) => {
+          x.style.outline = "none";
+        });
+        img.style.outline = "2px solid #8f7aff";
+        selectedAvatar = img.dataset.src || img.src;
+      });
+    });
+
+    document.getElementById("btn-register")?.addEventListener("click", () => {
+      const username = document.getElementById("reg-name")?.value?.trim();
+      const email = document.getElementById("reg-email")?.value?.trim();
+      const password = document.getElementById("reg-pass")?.value || "";
+      const avatarInput = document.getElementById("reg-avatar")?.value?.trim();
+      const avatar = avatarInput || selectedAvatar || "./images/susenka-logo.png";
+
+      if (!username || !email || !password) {
+        statusEl.textContent = "❌ Vyplň uživatelské jméno, e-mail i heslo.";
+        return;
+      }
+
+      const users = loadUsers();
+      if (users[username]) {
+        statusEl.textContent = "❌ Toto uživatelské jméno už existuje.";
+        return;
+      }
+
+      users[username] = {
+        email,
+        password,
+        avatar,
+        role: email === "susenky17@gmail.com" ? "vedouci" : "clen",
+        cookies: 0,
+        inventory: []
+      };
+
+      saveUsers(users);
+      localStorage.setItem("currentUser", username);
+      statusEl.textContent = "✅ Účet vytvořen. Přesměrovávám…";
+      setTimeout(() => {
+        location.href = "./index.html";
+      }, 400);
+    });
+
+    document.getElementById("btn-login")?.addEventListener("click", () => {
+      const username = document.getElementById("login-name")?.value?.trim();
+      const password = document.getElementById("login-pass")?.value || "";
+      const users = loadUsers();
+      const user = users[username];
+
+      if (!user || user.password !== password) {
+        statusEl.textContent = "❌ Špatné uživatelské jméno nebo heslo.";
+        return;
+      }
+
+      localStorage.setItem("currentUser", username);
+      statusEl.textContent = "✅ Přihlášení proběhlo. Přesměrovávám…";
+      setTimeout(() => {
+        location.href = "./index.html";
+      }, 300);
+    });
+
+    window.logoutUser = function () {
+      localStorage.removeItem("currentUser");
+      statusEl.textContent = "✅ Odhlášeno.";
+    };
+  </script>
 </body>
 </html>
