@@ -75,7 +75,7 @@
     </section>
   </main>
 
-  <footer class="footer">© 2025 Sušenka Web</footer>
+  <footer class="footer">© 2026 Sušenka Web</footer>
 
   <!-- 🔥 Firebase SDK – STEJNÉ JAKO VE HŘE -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -86,13 +86,14 @@
     console.log("🔥 auth.html – stejný styl jako hra");
 
     const firebaseConfig = {
-      apiKey: "AIzaSyCKHgsrhvBqciDCd03r4ukddxIxP95m94",
+      apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
       authDomain: "susenka-web-chat.firebaseapp.com",
       databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "susenka-web-chat",
-      storageBucket: "susenka-web-chat.appspot.com",
+      storageBucket: "susenka-web-chat.firebasestorage.app",
       messagingSenderId: "625704029177",
-      appId: "1:625704029177:web:d8510c07f534df48134b28"
+      appId: "1:625704029177:web:d8510c07f534df48134b28",
+      measurementId: "G-012LNBPFGJ"
     };
 
     if (!firebase.apps.length) {
@@ -102,6 +103,31 @@
 
     const auth = firebase.auth();
     const statusEl = document.getElementById("status");
+
+    function formatAuthError(err) {
+      const code = err?.code || "";
+      const msg = err?.message || "";
+
+      if (code === "auth/invalid-api-key" || msg.includes("API key not valid")) {
+        return "❌ Neplatný Firebase API klíč nebo nepovolená doména v Firebase Auth.";
+      }
+      if (code === "auth/invalid-login-credentials") {
+        return "❌ Špatný email nebo heslo.";
+      }
+      if (code === "auth/invalid-email") {
+        return "❌ Neplatný formát emailu.";
+      }
+      if (code === "auth/email-already-in-use") {
+        return "❌ Tento email už je registrovaný.";
+      }
+      if (code === "auth/weak-password") {
+        return "❌ Heslo je moc slabé (min. 6 znaků).";
+      }
+      if (code === "auth/network-request-failed") {
+        return "❌ Chyba sítě. Zkus to prosím znovu.";
+      }
+      return `❌ ${code || msg || "Neznámá chyba přihlášení."}`;
+    }
 
     function login() {
       const email = document.getElementById("email").value.trim();
@@ -115,7 +141,8 @@
           location.href = "../index.html";
         })
         .catch(err => {
-          statusEl.textContent = err.message;
+          statusEl.textContent = formatAuthError(err);
+          console.error("Login error:", err);
         });
     }
 
@@ -131,7 +158,8 @@
           location.href = "../index.html";
         })
         .catch(err => {
-          statusEl.textContent = err.message;
+          statusEl.textContent = formatAuthError(err);
+          console.error("Register error:", err);
         });
     }
   </script>
