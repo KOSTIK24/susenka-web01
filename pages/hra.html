@@ -165,9 +165,27 @@
       <h3 style="margin-top:10px;">🟢 Online</h3>
       <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
+
+
+    <aside class="card animate-pop" id="game-admin-panel" style="display:none;min-width:280px;max-width:320px;">
+      <h3>🛠️ Admin správa hry</h3>
+      <input id="admin-target-user" placeholder="uživatelské jméno" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
+      <input id="admin-cookie-amount" type="number" placeholder="počet sušenek" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" id="btn-admin-add-cookies">+🍪 Přidat</button>
+        <button class="btn" id="btn-admin-remove-cookies">-🍪 Odebrat</button>
+      </div>
+      <input id="admin-item-id" placeholder="item id (wood/metal/gold/machine)" style="width:100%;padding:8px;margin:10px 0 6px;border-radius:8px;border:1px solid rgba(255,255,255,.1)">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn" id="btn-admin-add-item">+🎒 Item</button>
+        <button class="btn" id="btn-admin-remove-item">-🎒 Item</button>
+      </div>
+      <p id="game-admin-status" style="min-height:20px;margin-top:10px;color:var(--muted)"></p>
+    </aside>
+
   </main>
 
-<footer class="footer">© 2025 Sušenka Web</footer>
+<footer class="footer">© 2026 Sušenka Web</footer>
 
 <audio id="bg-music"
   src="../sounds/Halo Theme EPIC VERSION (Halo Infinite Tribute).mp3"
@@ -183,5 +201,35 @@
 
   <!-- 💬 Chat (modul – zůstává s defer, protože je samostatný) -->
   <script type="module" src="../chat.js" defer></script>
+
+  <script>
+    (function(){
+      const current = localStorage.getItem("currentUser");
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const user = users[current];
+      const isAdmin = user && (user.role === "admin" || user.role === "vedouci" || user.email === "susenky17@gmail.com");
+      const panel = document.getElementById("game-admin-panel");
+      const status = document.getElementById("game-admin-status");
+      if (!panel || !isAdmin) return;
+      panel.style.display = "block";
+
+      const getVal = (id) => document.getElementById(id)?.value?.trim();
+      const setStatus = (msg) => { if (status) status.textContent = msg || ""; };
+
+      document.getElementById("btn-admin-add-cookies")?.addEventListener("click", () => {
+        setStatus(window.adminAddCookies?.(getVal("admin-target-user"), getVal("admin-cookie-amount")) || "⚠️ adminAddCookies není dostupné.");
+      });
+      document.getElementById("btn-admin-remove-cookies")?.addEventListener("click", () => {
+        setStatus(window.adminRemoveCookies?.(getVal("admin-target-user"), getVal("admin-cookie-amount")) || "⚠️ adminRemoveCookies není dostupné.");
+      });
+      document.getElementById("btn-admin-add-item")?.addEventListener("click", () => {
+        setStatus(window.adminAddItem?.(getVal("admin-target-user"), getVal("admin-item-id")) || "⚠️ adminAddItem není dostupné.");
+      });
+      document.getElementById("btn-admin-remove-item")?.addEventListener("click", () => {
+        setStatus(window.adminRemoveItem?.(getVal("admin-target-user"), getVal("admin-item-id")) || "⚠️ adminRemoveItem není dostupné.");
+      });
+    })();
+  </script>
+
 </body>
 </html>
