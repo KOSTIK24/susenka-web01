@@ -278,3 +278,84 @@ window.listUsers = function () {
     list.appendChild(li);
   }
 };
+
+function isAdminUser(user) {
+  return !!user && (user.role === "admin" || user.role === "vedouci" || user.email === "susenky17@gmail.com");
+}
+
+function requireAdminAction() {
+  const current = getCurrentUser();
+  const users = loadUsers();
+  const actor = users[current];
+  if (!isAdminUser(actor)) {
+    return { ok: false, message: "❌ Nemáš oprávnění admina." };
+  }
+  return { ok: true, users, current };
+}
+
+window.adminAddCookies = function (targetName, amount) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const delta = Number(amount) || 0;
+  if (!delta) return "⚠️ Zadej počet sušenek.";
+
+  users[targetName].cookies = Number(users[targetName].cookies || 0) + delta;
+  saveUsers(users);
+  updateLeaderboardLocal();
+  return `✅ Přidáno ${delta} sušenek uživateli ${targetName}.`;
+};
+
+window.adminRemoveCookies = function (targetName, amount) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const delta = Number(amount) || 0;
+  if (!delta) return "⚠️ Zadej počet sušenek.";
+
+  const next = Number(users[targetName].cookies || 0) - delta;
+  users[targetName].cookies = Math.max(0, next);
+  saveUsers(users);
+  updateLeaderboardLocal();
+  return `✅ Odebráno ${delta} sušenek uživateli ${targetName}.`;
+};
+
+window.adminAddItem = function (targetName, itemId) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const id = String(itemId || "").trim();
+  if (!id) return "⚠️ Zadej ID itemu.";
+
+  if (!Array.isArray(users[targetName].inventory)) users[targetName].inventory = [];
+  if (users[targetName].inventory.includes(id)) return "ℹ️ Uživatel už tento item má.";
+
+  users[targetName].inventory.push(id);
+  saveUsers(users);
+  return `✅ Item ${id} přidán uživateli ${targetName}.`;
+};
+
+window.adminRemoveItem = function (targetName, itemId) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const id = String(itemId || "").trim();
+  if (!id) return "⚠️ Zadej ID itemu.";
+
+  if (!Array.isArray(users[targetName].inventory)) users[targetName].inventory = [];
+  users[targetName].inventory = users[targetName].inventory.filter((x) => x !== id);
+  saveUsers(users);
+  return `✅ Item ${id} odebrán uživateli ${targetName}.`;
+};
