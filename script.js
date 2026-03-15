@@ -55,6 +55,7 @@ function initGame() {
     saveUsers(users);
   }
 
+<<<<<<< HEAD
   if (!Array.isArray(users[username].inventory)) {
     users[username].inventory = [];
   }
@@ -62,6 +63,8 @@ function initGame() {
     users[username].cookies = Number(users[username].cookies) || 0;
   }
 
+=======
+>>>>>>> origin/main
   let count = users[username].cookies;
   let inventory = users[username].inventory;
 
@@ -265,6 +268,7 @@ window.listAdmins = function () {
 window.listUsers = function () {
   const list = document.getElementById("user-list");
   if (!list) return;
+<<<<<<< HEAD
   list.innerHTML = "";
 
   if (!hasFirebase) {
@@ -376,4 +380,18 @@ window.adminRemoveItem = function (targetName, itemId) {
   users[targetName].inventory = users[targetName].inventory.filter((x) => x !== id);
   saveUsers(users);
   return `✅ Item ${id} odebrán uživateli ${targetName}.`;
+=======
+
+  const users = loadUsers();
+  list.innerHTML = "";
+
+  for (const [name, u] of Object.entries(users)) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${name}</strong>
+      <br><span style="opacity:0.7">${u.role}</span>
+    `;
+    list.appendChild(li);
+  }
+>>>>>>> origin/main
 };
