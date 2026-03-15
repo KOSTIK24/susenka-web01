@@ -55,6 +55,16 @@ function initGame() {
     saveUsers(users);
   }
 
+<<<<<<< HEAD
+  if (!Array.isArray(users[username].inventory)) {
+    users[username].inventory = [];
+  }
+  if (typeof users[username].cookies !== "number") {
+    users[username].cookies = Number(users[username].cookies) || 0;
+  }
+
+=======
+>>>>>>> origin/main
   let count = users[username].cookies;
   let inventory = users[username].inventory;
 
@@ -258,6 +268,119 @@ window.listAdmins = function () {
 window.listUsers = function () {
   const list = document.getElementById("user-list");
   if (!list) return;
+<<<<<<< HEAD
+  list.innerHTML = "";
+
+  if (!hasFirebase) {
+    list.innerHTML = "<li>⚠️ Firebase není načtený. Registrované účty bereme jen z Firebase.</li>";
+    return;
+  }
+
+  firebase.database().ref("users").once("value")
+    .then((snapshot) => {
+      const users = snapshot.val() || {};
+      list.innerHTML = "";
+
+      if (!Object.keys(users).length) {
+        list.innerHTML = "<li>Žádní registrovaní uživatelé ve Firebase.</li>";
+        return;
+      }
+
+      Object.entries(users).forEach(([name, u]) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${name}</strong>
+          <br><span style="opacity:0.7">${u.role || "clen"}</span>
+        `;
+        list.appendChild(li);
+      });
+    })
+    .catch((err) => {
+      console.error("Chyba načítání users z Firebase:", err);
+      list.innerHTML = "<li>❌ Nepodařilo se načíst registrované účty z Firebase.</li>";
+    });
+};
+
+function isAdminUser(user) {
+  return !!user && (user.role === "admin" || user.role === "vedouci" || user.email === "susenky17@gmail.com");
+}
+
+function requireAdminAction() {
+  const current = getCurrentUser();
+  const users = loadUsers();
+  const actor = users[current];
+  if (!isAdminUser(actor)) {
+    return { ok: false, message: "❌ Nemáš oprávnění admina." };
+  }
+  return { ok: true, users, current };
+}
+
+window.adminAddCookies = function (targetName, amount) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const delta = Number(amount) || 0;
+  if (!delta) return "⚠️ Zadej počet sušenek.";
+
+  users[targetName].cookies = Number(users[targetName].cookies || 0) + delta;
+  saveUsers(users);
+  updateLeaderboardLocal();
+  return `✅ Přidáno ${delta} sušenek uživateli ${targetName}.`;
+};
+
+window.adminRemoveCookies = function (targetName, amount) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const delta = Number(amount) || 0;
+  if (!delta) return "⚠️ Zadej počet sušenek.";
+
+  const next = Number(users[targetName].cookies || 0) - delta;
+  users[targetName].cookies = Math.max(0, next);
+  saveUsers(users);
+  updateLeaderboardLocal();
+  return `✅ Odebráno ${delta} sušenek uživateli ${targetName}.`;
+};
+
+window.adminAddItem = function (targetName, itemId) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const id = String(itemId || "").trim();
+  if (!id) return "⚠️ Zadej ID itemu.";
+
+  if (!Array.isArray(users[targetName].inventory)) users[targetName].inventory = [];
+  if (users[targetName].inventory.includes(id)) return "ℹ️ Uživatel už tento item má.";
+
+  users[targetName].inventory.push(id);
+  saveUsers(users);
+  return `✅ Item ${id} přidán uživateli ${targetName}.`;
+};
+
+window.adminRemoveItem = function (targetName, itemId) {
+  const gate = requireAdminAction();
+  if (!gate.ok) return gate.message;
+
+  const users = gate.users;
+  if (!users[targetName]) return "❌ Uživatel neexistuje.";
+
+  const id = String(itemId || "").trim();
+  if (!id) return "⚠️ Zadej ID itemu.";
+
+  if (!Array.isArray(users[targetName].inventory)) users[targetName].inventory = [];
+  users[targetName].inventory = users[targetName].inventory.filter((x) => x !== id);
+  saveUsers(users);
+  return `✅ Item ${id} odebrán uživateli ${targetName}.`;
+=======
 
   const users = loadUsers();
   list.innerHTML = "";
@@ -270,4 +393,5 @@ window.listUsers = function () {
     `;
     list.appendChild(li);
   }
+>>>>>>> origin/main
 };

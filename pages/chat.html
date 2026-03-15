@@ -38,8 +38,50 @@
       <h3>🟢 Online uživatelé</h3>
       <ul id="online-users" style="list-style:none;padding:0;margin:0;color:var(--muted);"></ul>
     </aside>
+
+    <aside class="card animate-pop" id="chat-admin-panel" style="display:none;flex:1;min-width:220px;">
+      <h3>🛡️ Admin chat</h3>
+      <button id="btn-clear-chat" class="btn" style="width:100%;">🧹 Smazat všechny zprávy</button>
+      <p id="chat-admin-status" style="margin-top:10px;min-height:20px;color:var(--muted);"></p>
+    </aside>
+
   </main>
 
   <footer class="footer">© 2026 Sušenka Web</footer>
+<<<<<<< HEAD
+
+  <script>
+    (function(){
+      const current = localStorage.getItem("currentUser");
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const user = users[current];
+      const isAdmin = user && (user.role === "admin" || user.role === "vedouci" || user.email === "susenky17@gmail.com");
+
+      const panel = document.getElementById("chat-admin-panel");
+      const status = document.getElementById("chat-admin-status");
+      const btn = document.getElementById("btn-clear-chat");
+      if (!panel || !btn || !isAdmin) return;
+      panel.style.display = "block";
+
+      btn.addEventListener("click", async () => {
+        if (!window._chatClearAll) {
+          status.textContent = "⚠️ Chat admin API není připravené.";
+          return;
+        }
+        try {
+          await window._chatClearAll();
+          status.textContent = "✅ Zprávy v chatu byly smazány.";
+          const box = document.getElementById("chat-box");
+          if (box) box.innerHTML = "";
+        } catch (e) {
+          status.textContent = "❌ Nepodařilo se smazat zprávy.";
+          console.error("Chat clear failed", e);
+        }
+      });
+    })();
+  </script>
+
+=======
+>>>>>>> origin/main
 </body>
 </html>

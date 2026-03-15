@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin stránky • Sušenka Web</title>
+  <link rel="stylesheet" href="../../style.css" />
+  <style>
+    .admin-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap:16px; }
+    .admin-grid .card input { width:100%; padding:8px; margin:6px 0; border-radius:8px; border:1px solid rgba(255,255,255,.1); }
+    #no-access { display:none; text-align:center; margin:30px auto; max-width:520px; }
+    #admin-content { display:none; }
+  </style>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="../../script.js" defer></script>
+  <script type="module" src="../../chat.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="../../images/susenka-logo.png" alt="logo" class="brand-logo" />
+      <span class="brand-name">Sušenka <b>Web</b></span>
+    </div>
+    <nav class="nav">
+      <a href="../../index.html">Domů</a>
+      <a href="../hra.html">Hra</a>
+      <a href="../chat.html">Chat</a>
+      <a href="panel.html" class="active">Admin stránky</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section id="no-access" class="card animate-pop">
+      <h2>⛔ Nemáš právo</h2>
+      <p>Tato stránka je dostupná jen pro admina nebo vedoucího.</p>
+    </section>
+
+    <section id="admin-content" class="animate-pop">
+      <h1>💎 Admin stránky</h1>
+      <div class="admin-grid">
+        <article class="card">
+          <h3>👑 Správa adminů</h3>
+          <input id="admin-name" placeholder="uživatelské jméno" />
+          <button class="btn primary" id="btn-add-admin">Přidat admina</button>
+          <button class="btn" id="btn-list-admins">Zobrazit adminy</button>
+          <ul id="admin-list" style="list-style:none;padding:0;margin-top:8px;color:var(--muted)"></ul>
+        </article>
+
+        <article class="card">
+          <h3>🍪 Správa hry</h3>
+          <input id="target-user" placeholder="uživatelské jméno" />
+          <input id="cookie-amount" type="number" placeholder="počet sušenek" />
+          <button class="btn" id="btn-add-cookies">+ Přidat sušenky</button>
+          <button class="btn" id="btn-remove-cookies">- Odebrat sušenky</button>
+          <input id="item-id" placeholder="item id (wood/metal/gold/machine)" />
+          <button class="btn" id="btn-add-item">+ Přidat item</button>
+          <button class="btn" id="btn-remove-item">- Odebrat item</button>
+          <p id="game-status" style="min-height:20px;color:var(--muted)"></p>
+        </article>
+
+        <article class="card">
+          <h3>💬 Správa chatu</h3>
+          <button class="btn" id="btn-clear-chat">🧹 Smazat všechny zprávy</button>
+          <p id="chat-status" style="min-height:20px;color:var(--muted)"></p>
+        </article>
+
+        <article class="card">
+          <h3>📜 Účty</h3>
+          <button class="btn" id="btn-list-users">Zobrazit všechny účty</button>
+          <ul id="user-list" style="list-style:none;padding:0;margin-top:8px;color:var(--muted)"></ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">© 2026 Sušenka Web</footer>
+
+  <script>
+    (function () {
+      const current = localStorage.getItem("currentUser");
+      const users = JSON.parse(localStorage.getItem("users") || "{}");
+      const me = users[current];
+      const isAdmin = me && (me.role === "admin" || me.role === "vedouci" || me.email === "susenky17@gmail.com");
+
+      const noAccess = document.getElementById("no-access");
+      const adminContent = document.getElementById("admin-content");
+
+      if (!isAdmin) {
+        noAccess.style.display = "block";
+        return;
+      }
+      adminContent.style.display = "block";
+
+      document.getElementById("btn-add-admin")?.addEventListener("click", () => window.addAdmin?.());
+      document.getElementById("btn-list-admins")?.addEventListener("click", () => window.listAdmins?.());
+      document.getElementById("btn-list-users")?.addEventListener("click", () => window.listUsers?.());
+
+      const target = () => document.getElementById("target-user")?.value?.trim();
+      const amount = () => document.getElementById("cookie-amount")?.value?.trim();
+      const itemId = () => document.getElementById("item-id")?.value?.trim();
+      const gameStatus = document.getElementById("game-status");
+      const chatStatus = document.getElementById("chat-status");
+
+      document.getElementById("btn-add-cookies")?.addEventListener("click", () => {
+        gameStatus.textContent = window.adminAddCookies?.(target(), amount()) || "⚠️ Funkce není dostupná.";
+      });
+      document.getElementById("btn-remove-cookies")?.addEventListener("click", () => {
+        gameStatus.textContent = window.adminRemoveCookies?.(target(), amount()) || "⚠️ Funkce není dostupná.";
+      });
+      document.getElementById("btn-add-item")?.addEventListener("click", () => {
+        gameStatus.textContent = window.adminAddItem?.(target(), itemId()) || "⚠️ Funkce není dostupná.";
+      });
+      document.getElementById("btn-remove-item")?.addEventListener("click", () => {
+        gameStatus.textContent = window.adminRemoveItem?.(target(), itemId()) || "⚠️ Funkce není dostupná.";
+      });
+
+      document.getElementById("btn-clear-chat")?.addEventListener("click", async () => {
+        try {
+          if (!window._chatClearAll) {
+            chatStatus.textContent = "⚠️ Chat admin API není připravené.";
+            return;
+          }
+          await window._chatClearAll();
+          chatStatus.textContent = "✅ Chat byl vymazán.";
+        } catch (e) {
+          chatStatus.textContent = "❌ Mazání chatu selhalo.";
+          console.error(e);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -10,7 +10,8 @@ import {
   onValue,
   set,
   onDisconnect,
-  serverTimestamp
+  serverTimestamp,
+  remove
 } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
 
 /* ====== KONFIG ======
@@ -83,6 +84,11 @@ export function sendMessage() {
   msgInput.value = "";
 }
 
+
+export function clearAllMessages() {
+  return remove(ref(db, "messages"));
+}
+
 /* Připoj standardní ovládání ENTER / tlačítko pokud tam je (NECHÁM JE, ale pokud už je v jiném skriptu, nemusíš to duplikovat) */
 if(sendBtn && msgInput){
   sendBtn.addEventListener("click", sendMessage);
@@ -147,3 +153,4 @@ function decodeKey(k){ try { return decodeURIComponent(k); } catch(e){ return k;
    - nebo zavolej window._chatSend() z non-module scriptů (pokud chceš)
 */
 window._chatSend = sendMessage;
+window._chatClearAll = clearAllMessages;

@@ -45,7 +45,7 @@
           <label>Uživatelské jméno</label><br>
           <input id="reg-name" placeholder="nové jméno" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
           <label>E-mail</label><br>
-          <input id="reg-email" type="email" placeholder="např. example@gmail.com" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
+          <input id="reg-email" type="email" placeholder="např. susenky17@gmail.com" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
           <label>Heslo</label><br>
           <input id="reg-pass" type="password" placeholder="heslo" style="width:100%;padding:8px;margin:6px 0;border-radius:8px;border:1px solid rgba(255,255,255,.06)"><br>
           <label>Profilovka (URL) nebo vyber:</label><br>
@@ -65,99 +65,12 @@
   </main>
 
   <footer class="footer">© 2026 Sušenka Web</footer>
-<<<<<<< HEAD
-
-  <!-- 🔥 Firebase SDK – STEJNÉ JAKO VE HŘE -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-=======
->>>>>>> origin/main
 
   <script>
     const loadUsers = () => JSON.parse(localStorage.getItem("users") || "{}");
     const saveUsers = (u) => localStorage.setItem("users", JSON.stringify(u));
     const statusEl = document.getElementById("auth-status");
 
-<<<<<<< HEAD
-    const firebaseConfig = {
-      apiKey: "AIzaSyCKHgsrhvBqciCDCd03r4ukddxIxP95m94",
-      authDomain: "susenka-web-chat.firebaseapp.com",
-      databaseURL: "https://susenka-web-chat-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "susenka-web-chat",
-      storageBucket: "susenka-web-chat.firebasestorage.app",
-      messagingSenderId: "625704029177",
-      appId: "1:625704029177:web:d8510c07f534df48134b28",
-      measurementId: "G-012LNBPFGJ"
-    };
-
-    if (!firebase.apps.length) {
-      firebase.initializeApp(firebaseConfig);
-      console.log("✅ Firebase inicializován (auth)");
-    }
-
-    const auth = firebase.auth();
-    const statusEl = document.getElementById("status");
-
-    function formatAuthError(err) {
-      const code = err?.code || "";
-      const msg = err?.message || "";
-
-      if (code === "auth/invalid-api-key" || msg.includes("API key not valid")) {
-        return "❌ Neplatný Firebase API klíč nebo nepovolená doména v Firebase Auth.";
-      }
-      if (code === "auth/invalid-login-credentials") {
-        return "❌ Špatný email nebo heslo.";
-      }
-      if (code === "auth/invalid-email") {
-        return "❌ Neplatný formát emailu.";
-      }
-      if (code === "auth/email-already-in-use") {
-        return "❌ Tento email už je registrovaný.";
-      }
-      if (code === "auth/weak-password") {
-        return "❌ Heslo je moc slabé (min. 6 znaků).";
-      }
-      if (code === "auth/network-request-failed") {
-        return "❌ Chyba sítě. Zkus to prosím znovu.";
-      }
-      return `❌ ${code || msg || "Neznámá chyba přihlášení."}`;
-    }
-
-    function login() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      statusEl.textContent = "Přihlašuji…";
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(() => {
-          statusEl.textContent = "✅ Přihlášeno";
-          location.href = "../index.html";
-        })
-        .catch(err => {
-          statusEl.textContent = formatAuthError(err);
-          console.error("Login error:", err);
-        });
-    }
-
-    function register() {
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-
-      statusEl.textContent = "Registruji…";
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(() => {
-          statusEl.textContent = "✅ Registrováno";
-          location.href = "../index.html";
-        })
-        .catch(err => {
-          statusEl.textContent = formatAuthError(err);
-          console.error("Register error:", err);
-        });
-    }
-=======
     let selectedAvatar = "";
 
     document.querySelectorAll(".avatar-choice").forEach((img) => {
@@ -228,7 +141,6 @@
       localStorage.removeItem("currentUser");
       statusEl.textContent = "✅ Odhlášeno.";
     };
->>>>>>> origin/main
   </script>
 </body>
 </html>
