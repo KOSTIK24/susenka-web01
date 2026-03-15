@@ -265,18 +265,36 @@ window.listAdmins = function () {
 window.listUsers = function () {
   const list = document.getElementById("user-list");
   if (!list) return;
-
-  const users = loadUsers();
   list.innerHTML = "";
 
-  for (const [name, u] of Object.entries(users)) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${name}</strong>
-      <br><span style="opacity:0.7">${u.role}</span>
-    `;
-    list.appendChild(li);
+  if (!hasFirebase) {
+    list.innerHTML = "<li>⚠️ Firebase není načtený. Registrované účty bereme jen z Firebase.</li>";
+    return;
   }
+
+  firebase.database().ref("users").once("value")
+    .then((snapshot) => {
+      const users = snapshot.val() || {};
+      list.innerHTML = "";
+
+      if (!Object.keys(users).length) {
+        list.innerHTML = "<li>Žádní registrovaní uživatelé ve Firebase.</li>";
+        return;
+      }
+
+      Object.entries(users).forEach(([name, u]) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${name}</strong>
+          <br><span style="opacity:0.7">${u.role || "clen"}</span>
+        `;
+        list.appendChild(li);
+      });
+    })
+    .catch((err) => {
+      console.error("Chyba načítání users z Firebase:", err);
+      list.innerHTML = "<li>❌ Nepodařilo se načíst registrované účty z Firebase.</li>";
+    });
 };
 
 function isAdminUser(user) {
