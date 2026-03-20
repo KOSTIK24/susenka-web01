@@ -95,7 +95,40 @@
 
       document.getElementById("btn-add-admin")?.addEventListener("click", () => window.addAdmin?.());
       document.getElementById("btn-list-admins")?.addEventListener("click", () => window.listAdmins?.());
-      document.getElementById("btn-list-users")?.addEventListener("click", () => window.listUsers?.());
+      document.getElementById("btn-list-users")?.addEventListener("click", () => {
+        const list = document.getElementById("user-list");
+        if (!list) return;
+        list.innerHTML = "<li>Načítám účty z Firebase…</li>";
+
+        if (!window.firebase?.database) {
+          list.innerHTML = "<li>❌ Firebase není načtený.</li>";
+          return;
+        }
+
+        window.firebase.database().ref("users").once("value")
+          .then((snapshot) => {
+            const users = snapshot.val() || {};
+            list.innerHTML = "";
+
+            if (!Object.keys(users).length) {
+              list.innerHTML = "<li>Žádní registrovaní uživatelé ve Firebase.</li>";
+              return;
+            }
+
+            Object.entries(users).forEach(([name, user]) => {
+              const li = document.createElement("li");
+              li.innerHTML = `
+                <strong>${name}</strong>
+                <br><span style="opacity:0.7">${user.role || "clen"}</span>
+              `;
+              list.appendChild(li);
+            });
+          })
+          .catch((err) => {
+            console.error("Firebase users load failed:", err);
+            list.innerHTML = "<li>❌ Nepodařilo se načíst registrované účty.</li>";
+          });
+      });
 
       const target = () => document.getElementById("target-user")?.value?.trim();
       const amount = () => document.getElementById("cookie-amount")?.value?.trim();
